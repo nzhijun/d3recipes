@@ -19,3 +19,6 @@ lto = true
 codegen-units = 1
 # no panic = "abort" here: the wasm target aborts anyway, and `cargo test --release` needs unwind, so with it the library
 # was built twice under one file name (output filename collision) and the precons binary could link against the wrong one
+
+[package.metadata.wasm-pack.profile.release]
+wasm-opt = false
