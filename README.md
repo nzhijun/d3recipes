@@ -8,6 +8,10 @@
 </p>
 
 <p align="center">
+  <b><a href="README.zh-CN.md">中文</a></b> &middot; English
+</p>
+
+<p align="center">
   <a href="https://fngarvin.github.io/d3recipes/">Open the site</a> &middot;
   <a href="#requesting-a-build-preset">Request a build</a> &middot;
   <a href="#changelog">Changelog</a> &middot;

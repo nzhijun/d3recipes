@@ -1,7 +1,7 @@
-import {baseQuery,pickHits} from './search-settings.js?v=c3f9a6b7d8';
-import {readSettings,clonePanel,hitHtml,esc,searchStarted,searchEnded} from './ui.js?v=c3f9a6b7d8';
-import {statName,CLASS_NAMES,itemName} from './stats.js?v=c3f9a6b7d8';
-import {supportsSanctify,defaultSanctifyCap} from './recipe.js?v=c3f9a6b7d8';
+import {baseQuery,pickHits} from './search-settings.js?v=a7c8b9d0e1';
+import {readSettings,clonePanel,hitHtml,esc,searchStarted,searchEnded} from './ui.js?v=a7c8b9d0e1';
+import {statName,CLASS_NAMES,itemName} from './stats.js?v=a7c8b9d0e1';
+import {supportsSanctify,defaultSanctifyCap} from './recipe.js?v=a7c8b9d0e1';
 const $=id=>document.getElementById('search-builds-'+id);
 let info,build,rows=[],active=null,job=0;
 const V=new URL(import.meta.url).searchParams.get('v');

@@ -1,9 +1,9 @@
-import { KEY, readBuilds as saved, updateBuilds, importPlan, conflictSnapshot, applyImport } from './build-storage.js?v=c3f9a6b7d8';
-import { combo, esc } from './ui.js?v=c3f9a6b7d8';
-import { parseBuildToml } from './build-toml.js?v=c3f9a6b7d8';
+import { KEY, readBuilds as saved, updateBuilds, importPlan, conflictSnapshot, applyImport } from './build-storage.js?v=a7c8b9d0e1';
+import { combo, esc } from './ui.js?v=a7c8b9d0e1';
+import { parseBuildToml } from './build-toml.js?v=a7c8b9d0e1';
 // randomUUID exists only on HTTPS and localhost pages; a self-hosted plain-HTTP page needs the fallback
 const uid=()=>globalThis.crypto?.randomUUID?.()??'b-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
-import { CLASS_NAMES, STATS, statName, HIDDEN, SLOT_NAMES, itemName } from './stats.js?v=c3f9a6b7d8';
+import { CLASS_NAMES, STATS, statName, HIDDEN, SLOT_NAMES, itemName } from './stats.js?v=a7c8b9d0e1';
 const $=id=>document.getElementById('build-'+id);
 const _t=(key,params)=>typeof window!=='undefined'&&typeof window.t==='function'?window.t(key,params):key;
 const slots=['Head','Shoulders','Chest','Hands','Wrists','Waist','Legs','Feet','Amulet','Ring 1','Ring 2','Main-hand','Off-hand','Dual-Wield'];
@@ -56,7 +56,9 @@ const chips=()=>{const list=box.querySelector('.chips');list.replaceChildren(...
   const remove=document.createElement('button');remove.type='button';remove.dataset.remove=String(i);remove.title='Remove';remove.setAttribute('aria-label','Remove '+statName(want.stem));remove.textContent='×';
   chip.append(label,up,remove);return chip;
 }));list.querySelectorAll('[data-up]').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.up;[row.wants[i-1],row.wants[i]]=[row.wants[i],row.wants[i-1]];chips();}));list.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{row.wants.splice(+b.dataset.remove,1);chips();}));};chips();const input=box.querySelector('input');pickers.set(request.i,combo(input,box.querySelector('.pick'),()=>{const text=input.value.trim().toLowerCase();return stems.filter(stem=>!row.wants.some(w=>w.stem===stem)&&(statName(stem).toLowerCase().includes(text)||stem.toLowerCase().includes(text))).slice(0,40).map(stem=>({value:stem,html:esc(statName(stem))}));},'No matching stats.',stem=>{row.wants.push({stem,min:null});chips();}));}
-worker.onmessage=({data:m})=>{if(m.type==='ready'){info=m.info;$('class').replaceChildren(...info.classes.map((c,i)=>{const tl=_t(c);const nm=tl!==c?tl:(CLASS_NAMES[c]||c);return new Option(nm,String(i));}).sort((x,y)=>x.text.localeCompare(y.text)));$('editor').hidden=false;$('loading').hidden=true;render();listSaved();}else if(m.type==='stems'){const r=pending.get(m.key);pending.delete(m.key);if(r?.resolve){r.resolve(m.stems);return;}if(r&&r.generation===generation)affixPicker(r,Object.keys(m.stems).filter(s=>!HIDDEN.test(s)).sort((a,b)=>statName(a).localeCompare(statName(b))));}else if(m.type==='error')failRequests(m.message,m.key);};
+function renderClassOptions(){if(!info)return;const prev=$('class').value;$('class').replaceChildren(...info.classes.map((c,i)=>{const tl=_t(c);const nm=tl!==c?tl:(CLASS_NAMES[c]||c);return new Option(nm,String(i));}).sort((x,y)=>x.text.localeCompare(y.text)));if(prev&&[...$('class').options].some(o=>o.value===prev))$('class').value=prev;}
+window.addEventListener('d3-lang-change',renderClassOptions);
+worker.onmessage=({data:m})=>{if(m.type==='ready'){info=m.info;renderClassOptions();$('editor').hidden=false;$('loading').hidden=true;render();listSaved();}else if(m.type==='stems'){const r=pending.get(m.key);pending.delete(m.key);if(r?.resolve){r.resolve(m.stems);return;}if(r&&r.generation===generation)affixPicker(r,Object.keys(m.stems).filter(s=>!HIDDEN.test(s)).sort((a,b)=>statName(a).localeCompare(statName(b))));}else if(m.type==='error')failRequests(m.message,m.key);};
 $('name').addEventListener('input',()=>draft.name=$('name').value);
 $('class').addEventListener('change',()=>{draft.class=+$('class').value;draft.slots=draft.slots.filter(r=>!r.item||candidates(r.slot).some(it=>it.id===r.item));render();notice('Class changed. Items unavailable to this class were removed.');});
 $('save').addEventListener('click',async()=>{if(!draft.name.trim())return notice('Enter a build name.');if(!draft.slots.length)return notice('Select at least one item.');if(pending.size)return notice('Wait for the affixes to finish loading before saving.');try{draft.name=draft.name.trim();draft.id ||=uid();const record=structuredClone({...draft,version:1,definition:definition(),updatedAt:new Date().toISOString()});await updateBuilds(list=>{const i=list.findIndex(b=>b.id===record.id);if(i<0)list.push(record);else list.splice(i,1,record);});listSaved();$('saved').value=draft.id;$('clone').hidden=false;notice('Build saved in this browser.');}catch(e){notice('Could not save build: '+e.message);}});

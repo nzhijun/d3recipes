@@ -2,9 +2,9 @@
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
 // Prepared builds: the side/top navigation and the per-build recipe pages. Reads premade_sc.json / premade_hc.json
 // (see export_premade.py); needs no wasm, so it is usable before the search engine has finished loading.
-import { statName, statAbbr, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=c3f9a6b7d8";
-import { stepsHtml, matsHtml, tooltipRows, savedList, requestHash } from "./recipe.js?v=c3f9a6b7d8";
-import { esc } from "./ui.js?v=c3f9a6b7d8";
+import { statName, statAbbr, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=a7c8b9d0e1";
+import { stepsHtml, matsHtml, tooltipRows, savedList, requestHash } from "./recipe.js?v=a7c8b9d0e1";
+import { esc } from "./ui.js?v=a7c8b9d0e1";
 
 const $ = (id) => document.getElementById(id);
 const V = new URL(import.meta.url).searchParams.get("v");
@@ -16,6 +16,10 @@ let current = null;               // loaded data for the active mode
 
 const modeKey = () => ($("hc").value === "1" ? "hc" : "sc");
 const className = (c) => { const t = typeof window !== "undefined" && window.t ? window.t(c) : c; return t !== c ? t : (CLASS_NAMES[c] || c); };
+// like className, but for the raw `Chest`/`Amulet`/… keys SLOT_NAMES and the i18n dictionaries share; falls back to the English name
+const slotName = (s) => { const t = typeof window !== "undefined" && window.t ? window.t(s) : s; return t !== s ? t : (SLOT_NAMES[s] || s); };
+// like className, but for an item's English name; the i18n dictionaries share its key, so it follows the language switch
+const itemLabel = (s) => { const t = typeof window !== "undefined" && window.t ? window.t(s) : s; return t !== s ? t : s; };
 // the class index the generator writes in `by` / `who` / `mystic_by` (the order of data.json's `classes`)
 const CLASS_ORDER = ["DemonHunter", "Barbarian", "Wizard", "WitchDoctor", "Monk", "Crusader", "Necromancer"];
 const heroName = (c) => className(CLASS_ORDER[c]);
@@ -121,7 +125,7 @@ function buildHtml(b, data) {
   const head = `<div class="bhead"><h2>${esc(b.title)}</h2><span class="small">${esc(className(b.class))} &middot; Season ${data.season} &middot; ${sc}</span></div>`;
   const note = +$("season").value !== data.season
     ? `<div class="warn modeflag">${window.t('theseRecipesForSeason', { s: data.season })}</div>` : "";
-  const cards = slots.map((s) => `<section class="card slot"><h3>${esc(s.name)}</h3>${s.rows.map((r) => rowHtml(r)).join("")}</section>`).join("");
+  const cards = slots.map((s) => `<section class="card slot"><h3>${esc(slotName(s.name))}</h3>${s.rows.map((r) => rowHtml(r)).join("")}</section>`).join("");
   return head + note + cards;
 }
 
@@ -134,7 +138,7 @@ function staplesHtml(data) {
   const cards = data.staples.map((st) => {
     const t = st.tier;
         const body = t ? rowHtml({ ...t.row, item: st.label, intro: `${window.t('makeClass', { c: esc(className(t.class)) })}`, cubed: false, mystic: null }, t.row.need.length > 0) : `<div class="small">${window.t('noRouteFound')}</div>`;
-    return `<section class="card slot"><h3>${esc(st.item)}</h3>${st.note ? `<p class="small" style="margin:0 0 8px">${esc(st.note)}</p>` : ""}${body}</section>`;
+    return `<section class="card slot"><h3>${esc(itemLabel(st.item))}</h3>${st.note ? `<p class="small" style="margin:0 0 8px">${esc(window.t(st.note))}</p>` : ""}${body}</section>`;
   }).join("");
   return head + cards;
 }
@@ -147,7 +151,7 @@ function salvageHtml(data) {
     <p class="small" style="margin:0 0 12px">${window.t('cheapPrimalSalvagingDesc')}</p>`;
   const rows = data.salvage.map((a) => {
     const r = a.row;
-    const slot = SLOT_NAMES[a.slot] || a.slot;
+    const slot = slotName(a.slot);
     return `<details class="rec"><summary><span class="nm">${esc(slot)}</span>
       <span class="meta"><span class="aff">${window.t('makeClass', { c: esc(className(a.class)) })}</span>${costHtml(r.n, r.path, r, r.who)}</span></summary>
       <div class="body">${recipeBody(r, r.path, r.lin, r.tt, `<div class="small">${window.t('youGet')} ${esc(itemName(r.item))}</div>`, false)}</div></details>`;

@@ -110,6 +110,10 @@ const translations = {
     fullTooltip: "Full tooltip",
     noSuchBuild: "No such build.",
 
+    "opens portals to a treasure room: an ancient gives a better map than a normal one; a primal is overkill": "opens portals to a treasure room: an ancient gives a better map than a normal one; a primal is overkill",
+    "double crit socket": "double crit socket",
+    "Equip on Follower: your follower cannot die.": "Equip on Follower: your follower cannot die.",
+
     qualityPrimal: "Primal",
     qualityCraftedPrimal: "Crafted primal",
     qualityAncient: "Ancient",
@@ -367,6 +371,10 @@ const translations = {
     nothingFound: "什么都没找到。",
     fullTooltip: "完整属性",
     noSuchBuild: "没有这个构筑。",
+
+    "opens portals to a treasure room: an ancient gives a better map than a normal one; a primal is overkill": "会打开通往藏宝秘室的传送门：远古版本比普通版本获得更好的地图；太古则有些浪费。",
+    "double crit socket": "双暴击孔位",
+    "Equip on Follower: your follower cannot die.": "随从佩戴：随从将无法死亡。",
 
     qualityPrimal: "太古",
     qualityCraftedPrimal: "制作太古",
@@ -1473,7 +1481,7 @@ const translations = {
   }
 };
 
-let currentLang = localStorage.getItem("d3r-lang") || "en";
+let currentLang = localStorage.getItem("d3r-lang") || "zh";
 
 function t(key, params) {
   const dict = translations[currentLang] || translations.en;
