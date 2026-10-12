@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://fngarvin.github.io/d3recipes/">Open the site</a> &middot;
+  <a href="https://nzhijun.github.io/d3recipes/">Open the site</a> &middot;
   <a href="#requesting-a-build-preset">Request a build</a> &middot;
   <a href="#changelog">Changelog</a> &middot;
   <a href="LICENSE">License</a>
@@ -30,7 +30,7 @@ The tool runs entirely in the browser (Rust compiled to WebAssembly), so it work
 
 ## Using It
 
-Open the site (`web/index.html` served by any static server, or the [GitHub Pages deployment](https://fngarvin.github.io/d3recipes/)), then:
+Open the site (`web/index.html` served by any static server, or the [GitHub Pages deployment](https://nzhijun.github.io/d3recipes/)), then:
 
 1. Pick softcore or hardcore and season number (default: softcore, season 40).
 2. Select a class, an item, and (optionally) a set of affixes.

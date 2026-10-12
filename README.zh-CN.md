@@ -8,7 +8,7 @@
 </p>
 
 <p align="center">
-  <a href="https://fngarvin.github.io/d3recipes/">打开网站</a> &middot;
+  <a href="https://nzhijun.github.io/d3recipes/">打开网站</a> &middot;
   <a href="#请求构筑预设">请求构筑预设</a> &middot;
   <a href="#更新日志">更新日志</a> &middot;
   <a href="LICENSE">许可证</a>
@@ -28,7 +28,7 @@
 
 ## 使用方法
 
-打开网站（用任意静态服务器打开 `web/index.html`，或直接访问 [GitHub Pages 部署](https://fngarvin.github.io/d3recipes/)），然后：
+打开网站（用任意静态服务器打开 `web/index.html`，或直接访问 [GitHub Pages 部署](https://nzhijun.github.io/d3recipes/)），然后：
 
 1. 选择软核或硬核以及赛季号（默认：软核，赛季 40）。
 2. 选择一个职业、一件物品，以及（可选）一组词缀。
