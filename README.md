@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://nzhijun.github.io/d3recipes/">Open the site</a> &middot;
+  <a href="https://fngarvin.github.io/d3recipes/">Open the site</a> &middot;
   <a href="#requesting-a-build-preset">Request a build</a> &middot;
   <a href="#changelog">Changelog</a> &middot;
   <a href="LICENSE">License</a>
@@ -30,7 +30,7 @@ The tool runs entirely in the browser (Rust compiled to WebAssembly), so it work
 
 ## Using It
 
-Open the site (`web/index.html` served by any static server, or the [GitHub Pages deployment](https://nzhijun.github.io/d3recipes/)), then:
+Open the site (`web/index.html` served by any static server, or the [GitHub Pages deployment](https://fngarvin.github.io/d3recipes/)), then:
 
 1. Pick softcore or hardcore and season number (default: softcore, season 40).
 2. Select a class, an item, and (optionally) a set of affixes.
@@ -51,7 +51,7 @@ Copy the block in `builds_template.toml`, fill in your collection of items (item
 
 | path | what |
 | --- | --- |
-| `web/` | the static site (`index.html`, `app.js`, `builds.js`, `recipe.js`, `stats.js`, `worker.js`, `icons/`), the game tables (`data.json`), the prepared recipes (`premade_sc.json`, `premade_hc.json`) and the compiled WebAssembly (`pkg/`) |
+| `web/` | the static site (`index.html`, `app.js`, `builds.js`, `recipe.js`, `stats.js`, `i18n.js`, `worker.js`, `icons/`), the game tables (`data.json`), the prepared recipes (`premade_sc.json`, `premade_hc.json`) and the compiled WebAssembly (`pkg/`) |
 | `core/` | the Rust crate: model (`sim.rs`), search (`plan.rs`), table loading (`data.rs`), wasm interface (`lib.rs`) and tests |
 | `testdata/` | expected results used by the tests |
 | `docs/` | the README banner and demo |
@@ -70,9 +70,27 @@ Serve locally: `python -m http.server 8765 -d web` and open `http://localhost:87
 
 ## Changelog
 
-**2026-10-10**
+**2026-10-12**
+
+- The page and this README are now also in Chinese (中文). The page follows your browser's language, with a switch in the header, and the Chinese README is [README.zh-CN.md](README.zh-CN.md). Translation by nzhijun ([@nzhijun](https://github.com/nzhijun)); item, stat and material names follow the game's own Chinese terms. Chinese text translated by AI.
+- Saved builds and exported TOML keep the game's English names whatever language the page shows, so a build moves between the two languages.
+
+<details>
+<summary><b>2026-10-11</b></summary>
+
+- Fixed the Monk Daibo Balance being named "Inna's Reach" in the item list, which showed two identical Inna's Reach entries. Confirmed in game.
+- Follower tokens (Templar Relic, Enchantress Focus, Scoundrel Token) no longer appear in custom search, where they showed up under hexadecimal names. They roll natural primals like any item, so the cheap primals page now includes them: on Hardcore the Scoundrel Token is the cheapest entry (9 casts, confirmed in game). Thanks to Ainahir for the report (#18).
+- Fixed ordinary 1H flails (Crusader) and 1H scythes (Necromancer) offering ethereal-weapon powers (Khalim, Soul Harvester and the ethereals' passives), which a plain Swiftmount could be asked to roll four times over. Ethereals don't come out of the Cube.
+- The prepared lists now search Damage Range, bonus Armor and Area Damage, which they had been skipping, so some costs went up (the Focus and Restraint rings, for example).
+
+</details>
+
+<details>
+<summary><b>2026-10-10</b></summary>
 
 - Fixed the prepared lists (staples, cheap primals, the builds) showing Softcore recipes under a Hardcore header when you opened the site with Hardcore saved from an earlier visit; choosing the mode by hand, or reloading in some browsers, hid it. They now load the saved mode straight away. Thanks to RoyalPain1980 for reporting it and helping to track it down.
+
+</details>
 
 <details>
 <summary><b>2026-10-08</b></summary>
@@ -141,10 +159,16 @@ Serve locally: `python -m http.server 8765 -d web` and open `http://localhost:87
 
 </details>
 
+## Translating
+
+The page's text is in one table, `web/i18n.js`: English and Chinese (中文) so far, the Chinese by nzhijun. Chinese text translated by AI; corrections are welcome as issues or pull requests, ideally with the game's own wording (a screenshot from the console is best), since item, stat and material names should match what the player sees. A test fails when a language lacks a string that English has. The language switch in the header is built for two languages, so adding a third needs a small change there, and builds always use the game's English names in `builds.toml` and in saved builds.
+
 ## License
 
 See [LICENSE](LICENSE). In short: use it however you like, credit the source, and if you use its outputs in a user-facing application, visibly link to the site or this repository. That applies to modified versions too.
 
 ## Thanks
+
+The people whose code and translation are in d3recipes are listed in [CONTRIBUTORS.md](CONTRIBUTORS.md).
 
 Thank you to Blizzard Entertainment for thirty glorious years of Diablo; to jester, whose d3hack made it possible to test seasons offline; and to Maxroll, whose build guides the stat priorities in `builds.toml` are drawn from.

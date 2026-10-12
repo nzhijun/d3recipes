@@ -48,14 +48,27 @@ const alias = (stem) => {
 };
 
 export function statName(stem) {
-  const i18nKey = "stat_" + stem;
-  if (typeof window !== "undefined" && window.t && window.t(i18nKey) !== i18nKey) return window.t(i18nKey);
+  if (typeof window !== "undefined" && window.t) {
+    for (const key of ["stat_" + stem, "stat_" + alias(stem)]) if (window.t(key) !== key) return window.t(key);
+  }
+  return statNameEnglish(stem);
+}
+// The game's English name: what saved builds and exported TOML carry, whatever language the page shows.
+// A skill's id ("RayofFrost", "WaveOfForce") as the game spells it. camel() alone gave "Rayof Frost", "Wave Of Force" and "Hot A".
+const SKILL_NAMES = { HotA: "Hammer of the Ancients", Wayof100Fists: "Way of the Hundred Fists", HeavensFury3: "Heaven's Fury", SevenSidedStrike: "Seven-Sided Strike", FireBomb: "Firebomb" };
+const skillName = (id) => SKILL_NAMES[id] || camel(id.replace(/([a-z])of([A-Z])/g, "$1 of $2")).replace(/(?<=\S )(Of|The)(?= )/g, (w) => w.toLowerCase());
+// The names builds exported before that fix carry, so an old file still imports.
+export const legacyStatNames = (stem) => {
+  const m = /^Skill_(\w+?)_(.+)$/.exec(stem);
+  return m ? [camel(m[2]) + " damage"] : [];
+};
+export function statNameEnglish(stem) {
   if (STATS[alias(stem)]) return STATS[alias(stem)][0];
   // Halcyon's Ascent's power, one per class ("x1_deadmau5_amulet_Wizard"): enemies are mesmerized when the hero uses that class's big cooldown
   let m = /^(?:x1_)?deadmau5_amulet_(\w+)$/.exec(stem);
   if (m && HALCYON[m[1]]) return `Mesmerize on ${HALCYON[m[1]]} (Halcyon's Ascent)`;
   m = /^Skill_(\w+?)_(.+)$/.exec(stem);
-  if (m) return camel(m[2]) + " damage";
+  if (m) return skillName(m[2]) + " damage";
   m = /^Ethereal_(\w+?)_(.+)$/.exec(stem);
   if (m) return camel(m[2]) + " (" + (CLASS_TAG[m[1]] || camel(m[1])) + " passive)";
   return camel(stem);
@@ -124,7 +137,12 @@ const ABBR = {
   DexInt: "Dex+Int", DexVit: "Dex+Vit", IntVit: "Int+Vit", StrDex: "Str+Dex", StrInt: "Str+Int", StrVit: "Str+Vit", Sockets: "Socket",
   Thorns: "Thorns", Gold: "Gold Find", MF: "Magic Find",
 };
-export const statAbbr = (stem) => ABBR[stem] || ABBR[alias(stem)] || statName(stem);
+export const statAbbr = (stem) => {
+  if (typeof window !== "undefined" && window.t) {
+    for (const key of ["stat_" + stem, "stat_" + alias(stem)]) if (window.t(key) !== key) return window.t(key);
+  }
+  return ABBR[stem] || ABBR[alias(stem)] || statNameEnglish(stem);
+};
 
 // Secondary (blue-tooltip) affixes: only shown in a result's headline when the player asked for one.
 const SECONDARY = new Set([
@@ -165,9 +183,8 @@ export const MATERIAL_ICONS = {
 export function itemName(name) {
   if (!name) return name;
   if (typeof window !== "undefined") {
-    const lookup = window.tZh || window.t;
-    if (typeof lookup === "function") {
-      const translated = lookup(name);
+    if (typeof window.t === "function") {
+      const translated = window.t(name);
       if (translated !== name) return translated;
     }
   }

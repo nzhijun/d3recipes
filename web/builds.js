@@ -2,9 +2,9 @@
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
 // Prepared builds: the side/top navigation and the per-build recipe pages. Reads premade_sc.json / premade_hc.json
 // (see export_premade.py); needs no wasm, so it is usable before the search engine has finished loading.
-import { statName, statAbbr, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=b8d9a2c3e4";
-import { stepsHtml, matsHtml, tooltipRows, savedList, requestHash } from "./recipe.js?v=b8d9a2c3e4";
-import { esc } from "./ui.js?v=b8d9a2c3e4";
+import { statName, statAbbr, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=440ee39fb2";
+import { stepsHtml, matsHtml, tooltipRows, savedList, requestHash } from "./recipe.js?v=440ee39fb2";
+import { esc } from "./ui.js?v=440ee39fb2";
 
 const $ = (id) => document.getElementById(id);
 const V = new URL(import.meta.url).searchParams.get("v");
@@ -103,7 +103,7 @@ function rowHtml(row, tooltip = true) {
   const stats = row.need.map((s) => `<span class="want">${esc(statAbbr(s))}</span>`).join(", ");
   const holder = row.who ? (row.who.length ? row.who[row.who.length - 1] : row.craft) : undefined;
   const mysticBy = row.mystic && row.who && row.mystic_by !== holder ? ` ${window.t('asClass', { c: esc(heroName(row.mystic_by)) })}` : "";
-  const mystic = row.mystic ? ` <span class="small">+ Mystic${mysticBy}: ${esc(statName(row.mystic))}</span>`
+  const mystic = row.mystic ? ` <span class="small">${window.t('mysticPlus')}${mysticBy}: ${esc(statName(row.mystic))}</span>`
     : row.nomystic ? ` <span class="small">${window.t('noRoomFor', { s: esc(statName(row.nomystic)) })}</span>` : "";
   const craftedNote = row.q === "crafted" ? `<div class="small">${window.t('improveLegendaryPrimalNote')}</div>` : "";
   const cheap = (row.cheap || []).map((c) => {
@@ -122,7 +122,7 @@ function buildHtml(b, data) {
     if (last && last.name === r.slot) last.rows.push(r); else slots.push({ name: r.slot, rows: [r] });
   }
   const sc = data.hardcore ? window.t("hardcore") : window.t("softcore");
-  const head = `<div class="bhead"><h2>${esc(b.title)}</h2><span class="small">${esc(className(b.class))} &middot; Season ${data.season} &middot; ${sc}</span></div>`;
+  const head = `<div class="bhead"><h2>${esc(b.title)}</h2><span class="small">${esc(className(b.class))} &middot; ${window.t('seasonLabel', { s: data.season })} &middot; ${sc}</span></div>`;
   const note = +$("season").value !== data.season
     ? `<div class="warn modeflag">${window.t('theseRecipesForSeason', { s: data.season })}</div>` : "";
   const cards = slots.map((s) => `<section class="card slot"><h3>${esc(slotName(s.name))}</h3>${s.rows.map((r) => rowHtml(r)).join("")}</section>`).join("");
@@ -133,7 +133,7 @@ function buildHtml(b, data) {
 
 function staplesHtml(data) {
   const sc = data.hardcore ? window.t("hardcore") : window.t("softcore");
-  const head = `<div class="bhead"><h2>${window.t('staplesTitle')}</h2><span class="small">${window.t('anyClass')} &middot; Season ${data.season} &middot; ${sc}</span></div>
+  const head = `<div class="bhead"><h2>${window.t('staplesTitle')}</h2><span class="small">${window.t('anyClass')} &middot; ${window.t('seasonLabel', { s: data.season })} &middot; ${sc}</span></div>
     <p class="small" style="margin:0 0 12px">${window.t('staplesDesc')}</p>`;
   const cards = data.staples.map((st) => {
     const t = st.tier;
@@ -147,7 +147,7 @@ function staplesHtml(data) {
 
 function salvageHtml(data) {
   const sc = data.hardcore ? window.t("hardcore") : window.t("softcore");
-  const head = `<div class="bhead"><h2>${window.t('cheapPrimalSalvagingTitle')}</h2><span class="small">${window.t('anyClass')} &middot; Season ${data.season} &middot; ${sc}</span></div>
+  const head = `<div class="bhead"><h2>${window.t('cheapPrimalSalvagingTitle')}</h2><span class="small">${window.t('anyClass')} &middot; ${window.t('seasonLabel', { s: data.season })} &middot; ${sc}</span></div>
     <p class="small" style="margin:0 0 12px">${window.t('cheapPrimalSalvagingDesc')}</p>`;
   const rows = data.salvage.map((a) => {
     const r = a.row;

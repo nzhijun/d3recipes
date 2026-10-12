@@ -2,11 +2,12 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {englishT} from './i18n-harness.mjs';
 const source=await readFile(new URL('./builds.js',import.meta.url),'utf8');
 const fn=source.slice(source.indexOf('function restoreMode()'),source.indexOf('async function refresh()'));
 function run(stored,throws){
   const hc={value:'0'};
-  const context=vm.createContext({$:()=>hc,localStorage:{getItem:k=>{if(throws)throw new Error('blocked');assert.equal(k,'d3r-hc');return stored;}}});
+  const context=vm.createContext({_t:englishT,$:()=>hc,localStorage:{getItem:k=>{if(throws)throw new Error('blocked');assert.equal(k,'d3r-hc');return stored;}}});
   vm.runInContext(fn+';restoreMode();',context);
   return hc.value;
 }

@@ -2,10 +2,11 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {englishT} from './i18n-harness.mjs';
 const source=await readFile(new URL('./search-builds.js',import.meta.url),'utf8');
 function harness(active){
   const messages=[];let advanced=0;
-  const context=vm.createContext({active,job:1,document:{getElementById:()=>({textContent:''})},worker:{postMessage:m=>messages.push(m)},nextRow:()=>advanced++});
+  const context=vm.createContext({_t:englishT,active,job:1,document:{getElementById:()=>({textContent:''})},worker:{postMessage:m=>messages.push(m)},nextRow:()=>advanced++});
   vm.runInContext(source.slice(source.indexOf('function setOwned('),source.indexOf("select.addEventListener('change'")),context);
   return {context,messages,advanced:()=>advanced};
 }

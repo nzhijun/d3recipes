@@ -5,13 +5,14 @@ import vm from 'node:vm';
 import {initSync,Engine} from './pkg/d3cube.js';
 import {parseBuildToml} from './build-toml.js';
 import {baseQuery} from './search-settings.js';
-import {STATS,statName} from './stats.js';
+import {STATS,statName,statNameEnglish,legacyStatNames} from './stats.js';
+import {englishT} from './i18n-harness.mjs';
 initSync({module:await readFile(new URL('./pkg/d3cube_bg.wasm',import.meta.url))});
 const engine=new Engine(await readFile(new URL('./data.json',import.meta.url),'utf8'));
 const editor=await readFile(new URL('./create-build.js',import.meta.url),'utf8');
 const search=await readFile(new URL('./search-builds.js',import.meta.url),'utf8');
 const pending=new Map();
-const context=vm.createContext({STATS,statName,info:JSON.parse(engine.describe()),slots:['Head','Shoulders','Chest','Hands','Wrists','Waist','Legs','Feet','Amulet','Ring 1','Ring 2','Main-hand','Off-hand','Dual-Wield'],normalize:s=>String(s).toLowerCase().replace(/[^a-z0-9]/g,''),pending,workerFailure:null,uid:()=>crypto.randomUUID(),worker:{postMessage:m=>{const request=pending.get(m.key);pending.delete(m.key);try{request.resolve(JSON.parse(engine.stems(m.class,m.slot,m.item)));}catch(e){request.reject(e);}}}});
+const context=vm.createContext({_t:englishT,STATS,statName,statNameEnglish,legacyStatNames,info:JSON.parse(engine.describe()),slots:['Head','Shoulders','Chest','Hands','Wrists','Waist','Legs','Feet','Amulet','Ring 1','Ring 2','Main-hand','Off-hand','Dual-Wield'],normalize:s=>String(s).toLowerCase().replace(/[^a-z0-9]/g,''),pending,workerFailure:null,uid:()=>crypto.randomUUID(),worker:{postMessage:m=>{const request=pending.get(m.key);pending.delete(m.key);try{request.resolve(JSON.parse(engine.stems(m.class,m.slot,m.item)));}catch(e){request.reject(e);}}}});
 vm.runInContext(editor.slice(editor.indexOf('async function prepareImported('),editor.indexOf("$('clone').addEventListener")),context);
 vm.runInContext(search.slice(search.indexOf('function targetStats('),search.indexOf('function nextRow(')),context);
 test('all bundled builds import against real item and affix tables',async()=>{

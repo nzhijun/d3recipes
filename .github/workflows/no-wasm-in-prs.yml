@@ -1,0 +1,41 @@
+# Refuses pull requests that change the compiled wasm package (web/pkg) or any .wasm file. The maintainer rebuilds it from source.
+# pull_request_target runs this workflow as it stands on main, so a pull request cannot edit the check away, and it never checks out
+# or runs the pull request's code: it only asks the API which files changed. To make it binding, require the "No wasm in pull
+# requests" check in the branch rules for main.
+name: No wasm in pull requests
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  # run by hand against any pull request, open or closed, to see what the check would say
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  check:
+    name: No wasm in pull requests
+    # the maintainer's own pull requests may carry a rebuilt package
+    if: github.event.pull_request.user.login != github.repository_owner
+    runs-on: ubuntu-latest
+    steps:
+      - name: List changed files and refuse the compiled package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR: ${{ github.event.pull_request.number || inputs.pr }}
+        run: |
+          files=$(gh api "repos/$REPO/pulls/$PR/files" --paginate --jq '.[] | .filename, (.previous_filename // empty)')
+          bad=$(printf '%s\n' "$files" | grep -E '^web/pkg/|\.wasm$' || true)
+          if [ -n "$bad" ]; then
+            echo "::error::This pull request changes the compiled wasm package. It is rebuilt from source by the maintainer and is never accepted in a pull request. Remove these files from the pull request:"
+            printf '%s\n' "$bad"
+            exit 1
+          fi
+          echo "No wasm files in this pull request."

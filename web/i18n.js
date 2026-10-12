@@ -3,6 +3,23 @@ const translations = {
     tagline: "Targeted Crafting Recipes for Diablo 3 on Consoles",
     headerNote: "Recipes only work on brand new level 1 seasonal characters — go directly to Adventure Mode and do not gain any XP before crafting.",
     ctxChange: "change",
+    resultsFor: "Results for",
+    mysticPlus: "+ Mystic",
+    footerZhBy: "Chinese localization by",
+    seasonLabel: "Season {s}",
+    footerPeriod: ".",
+    footerLetUsKnow: "Let us know on GitHub",
+    importFailedList: " Failed: {f}.",
+    importSkipped: "{n}: skipped {s}",
+    potionSlot: "Potion slot",
+    invalidSavedBuildData: "Invalid saved build data",
+    unknownItemShort: "Unknown item",
+    orJoin: " or ",
+    backToStart: "Back to the start",
+    switchThemeAria: "Switch light or dark theme",
+    navAria: "Prepared builds and custom search",
+    matsEach: "{names}: {n} each",
+    listSep: ", ",
     sanctifyAvailable: "Sanctification is available in this season.",
     beforeStart: "Before you start",
     beforeStartDesc: "Every recipe here assumes these. Skipping one is the usual reason a result doesn't match.",
@@ -265,13 +282,30 @@ const translations = {
     tagline: "暗黑破坏神3主机版定向制作配方",
     headerNote: "配方仅适用于全新的1级赛季角色 — 直接进入冒险模式，制作前不要获得任何经验值。",
     ctxChange: "更改",
+    resultsFor: "以下结果适用于",
+    mysticPlus: "+ 秘士",
+    footerZhBy: "中文本地化：",
+    seasonLabel: "第 {s} 赛季",
+    footerPeriod: "。",
+    footerLetUsKnow: "欢迎到 GitHub 告诉我们",
+    importFailedList: " 失败：{f}。",
+    importSkipped: "{n}：已跳过 {s}",
+    potionSlot: "药水槽位",
+    invalidSavedBuildData: "已保存的构筑数据无效",
+    unknownItemShort: "未知物品",
+    orJoin: " 或 ",
+    backToStart: "回到开头",
+    switchThemeAria: "切换明/暗模式",
+    navAria: "预设构筑与自定义搜索",
+    matsEach: "{names}：各 {n}",
+    listSep: "、",
     sanctifyAvailable: "本赛季可用圣化。",
     beforeStart: "开始前须知",
     beforeStartDesc: "这里的每个配方都基于以下前提。跳过其中一条通常是结果不符的原因。",
     bs1: "先解锁太古装备：用同一赛季和模式的另一个英雄通关单人70层以上大秘境。",
     bs2: "使用全新的1级赛季英雄。",
-    bs3: "不要获得任何经验值，包括在城镇阅读海德格里的书。",
-    bs4: "不要在该装备槽位上进行过任何之前的重铸。",
+    bs3: "不要获得任何经验值，包括在城镇阅读海德格的书。",
+    bs4: "不要在该装备槽位上进行过任何之前的魔盒操作。",
     bs5: "按顺序执行步骤。",
     bs6: "对照显示的属性检查每件中间装备，如有不符请停止。",
     understand: "我知道了",
@@ -289,18 +323,18 @@ const translations = {
     costsDesc: "每种操作一步的相对成本。搜索会按这些权重找到总成本最低的配方，所以只有比例重要。",
     convert: "转换",
     convertTitle: "转换套装物品",
-    hopeOfCain: "卡恩的希望",
+    hopeOfCain: "凯恩的希望",
     reforge: "重铸",
     sanctification: "圣化",
-    ashes: "余烬",
-    ashesTitle: "升级传奇（100 颗远古之烬）",
+    ashes: "太古之灰",
+    ashesTitle: "升级传奇（100 颗太古之灰）",
     heroSwap: "转职",
     heroSwapTitle: "将物品交给其他职业英雄（废弃的1级即可）的相对成本，单位与之前相同。数值越高表示越少转职。",
     goodRoll: "较好词条 (%)",
     goodRollTitle: "远古和传奇结果中所需属性的最低词条数值，占其最大值的百分比。太古永远是最大值。",
     recipesShown: "显示配方数",
     timeLimit: "时限（秒）",
-    branchDesc: "搜索的分支范围。转换和转职成本低，多做一步可能找到更便宜的配方但也会让搜索变慢。留空表示不限。转职是把物品交给其他职业进行魔盒操作：物品保留种子，英雄职业改变其词条。任何职业都能制作该物品（每个职业的卡恩希望选出来的结果不同），也算一次转职；后续魔盒操作和秘士可以是任何职业。",
+    branchDesc: "搜索的分支范围。转换和转职成本低，多做一步可能找到更便宜的配方但也会让搜索变慢。留空表示不限。转职是把物品交给其他职业进行魔盒操作：物品保留种子，英雄职业改变其词条。任何职业都能制作该物品（每个职业的凯恩希望选出来的结果不同），也算一次转职；后续魔盒操作和秘士可以是任何职业。",
     mostSanct: "最多圣化次数",
     mostSanctTitle: "单个配方中圣化（天使坩埚）的最多步数。0 表示关闭圣化，不计成本；留空表示不限。默认在有天使坩埚的赛季为 2，其他为 0。",
     mostConverts: "最多转换次数",
@@ -362,11 +396,11 @@ const translations = {
     cheaper: "更便宜的方案：",
     theseRecipesForSeason: "这些配方适用于第 {s} 赛季。其他赛季掉落不同的物品，所以无法匹配。",
     staplesTitle: "通用配方",
-    staplesDesc: "无论玩什么职业都值得拥有的物品。每个职业的卡恩希望链不同，所以每件都在成本最低的职业上制作。",
+    staplesDesc: "无论玩什么职业都值得拥有的物品。每个职业的凯恩希望链不同，所以每件都在成本最低的职业上制作。",
     makeClass: "由 {c} 制作",
     noRouteFound: "未找到路线。",
     cheapPrimalSalvagingTitle: "用于拆解的便宜太古",
-    cheapPrimalSalvagingDesc: "每个槽位最快的自然太古，任意物品、在成本最低的职业上制作。不会用到升级传奇，所以无需远古之烬。按成本从低到高排列。",
+    cheapPrimalSalvagingDesc: "每个槽位最快的自然太古，任意物品、在成本最低的职业上制作。不会用到升级传奇，所以无需太古之灰。按成本从低到高排列。",
     youGet: "你得到：",
     nothingFound: "什么都没找到。",
     fullTooltip: "完整属性",
@@ -391,9 +425,9 @@ const translations = {
     tagLegendaryFinishMystic: "传奇 · 秘士补完",
 
     mysticFinish: "然后秘士：",
-    crucibleNote: "或者在最后一步使用天使坩埚来创建一件圣化装备。其赛季词缀会替换六词缀装备上的一条普通次词缀。成本和材料按使用余烬升级传奇计算。",
+    crucibleNote: "或者在最后一步使用天使坩埚来创建一件圣化装备。其赛季词缀会替换六词缀装备上的一条普通次词缀。成本和材料按使用太古之灰升级传奇计算。",
 
-    costTip: "相对成本：卡恩的希望 1，重铸 5，转换套装物品 0.75，升级传奇 25。步数：制作加操作。",
+    costTip: "相对成本：凯恩的希望 1，重铸 5，转换套装物品 0.75，升级传奇 25。步数：制作加操作。",
     keyboardMove: "移动",
     keyboardSelect: "选择",
     keyboardClose: "关闭",
@@ -508,7 +542,7 @@ const translations = {
 
     opSanctify: "圣化 × {n}",
     opReforge: "重铸 × {n}",
-    opImproveWithAshes: "余烬升级 × {n}",
+    opImproveWithAshes: "太古之灰升级 × {n}",
     opConvert: "转换 × {n}",
     craftAndUpgrade: "制作并升级 {n} 件 {item}",
     stopOnNote: "（遇到 {t} 时停下）",
@@ -678,6 +712,143 @@ const translations = {
     "Ahavarion Spear of Lycander": "阿哈瓦里昂·利坎德尔之矛",
     "Akanesh the Herald of Righteousness": "正义的传令者阿卡内什",
     "Akarat's Awakening": "阿卡拉特的觉醒",
+    // Skill damage stats: the skill names are NetEase's Diablo 3 database names (mainland China). BloodNova is its Death Nova (死亡新星) and RaiseDead is taken to be the Skeletal Mage (骷髅法师): neither is confirmed.
+    stat_Skill_Barbarian_WeaponThrow: "武器飞掷伤害",
+    stat_Skill_Barbarian_SeismicSlam: "裂地斩伤害",
+    stat_Skill_Barbarian_HotA: "先祖之锤伤害",
+    stat_Skill_Barbarian_Overpower: "压制伤害",
+    stat_Skill_Barbarian_Frenzy: "狂乱伤害",
+    stat_Skill_Barbarian_Whirlwind: "旋风斩伤害",
+    stat_Skill_Barbarian_Rend: "痛割伤害",
+    stat_Skill_Barbarian_Bash: "猛击伤害",
+    stat_Skill_Barbarian_Cleave: "顺劈斩伤害",
+    stat_Skill_Barbarian_Revenge: "复仇伤害",
+    stat_Skill_Barbarian_CallOfTheAncients: "先祖召唤伤害",
+    stat_Skill_Barbarian_Earthquake: "地震伤害",
+    stat_Skill_Barbarian_Avalanche: "山崩地裂伤害",
+    stat_Skill_Barbarian_AncientSpear: "上古之矛伤害",
+    stat_Skill_Barbarian_FuriousCharge: "狂暴冲撞伤害",
+    stat_Skill_Wizard_SpectralBlade: "幽魂之刃伤害",
+    stat_Skill_Wizard_Hydra: "多头蛇伤害",
+    stat_Skill_Wizard_Electrocute: "电刑伤害",
+    stat_Skill_Wizard_ArcaneOrb: "奥术之球伤害",
+    stat_Skill_Wizard_EnergyTwister: "能量气旋伤害",
+    stat_Skill_Wizard_ShockPulse: "冲击震波伤害",
+    stat_Skill_Wizard_Blizzard: "暴风雪伤害",
+    stat_Skill_Wizard_Disintegrate: "瓦解射线伤害",
+    stat_Skill_Wizard_RayofFrost: "冰霜射线伤害",
+    stat_Skill_Wizard_ExplosiveBlast: "聚能爆破伤害",
+    stat_Skill_Wizard_Meteor: "陨石术伤害",
+    stat_Skill_Wizard_ArcaneTorrent: "奥术洪流伤害",
+    stat_Skill_Wizard_MagicMissile: "魔法飞弹伤害",
+    stat_Skill_Wizard_BlackHole: "黑洞伤害",
+    stat_Skill_Wizard_Familiar: "魔星伤害",
+    stat_Skill_Wizard_WaveOfForce: "原力之波伤害",
+    stat_Skill_DemonHunter_Grenades: "手雷伤害",
+    stat_Skill_DemonHunter_BolaShot: "流星索伤害",
+    stat_Skill_DemonHunter_Chakram: "飞轮刃伤害",
+    stat_Skill_DemonHunter_EntanglingShot: "缠绕射击伤害",
+    stat_Skill_DemonHunter_Impale: "暗影飞刀伤害",
+    stat_Skill_DemonHunter_RapidFire: "急速射击伤害",
+    stat_Skill_DemonHunter_Multishot: "多重射击伤害",
+    stat_Skill_DemonHunter_EvasiveFire: "闪避射击伤害",
+    stat_Skill_DemonHunter_ElementalArrow: "元素箭伤害",
+    stat_Skill_DemonHunter_Strafe: "扫射伤害",
+    stat_Skill_DemonHunter_HungeringArrow: "追踪箭伤害",
+    stat_Skill_DemonHunter_SpikeTrap: "尖刺陷阱伤害",
+    stat_Skill_DemonHunter_Sentry: "箭塔伤害",
+    stat_Skill_DemonHunter_ClusterArrow: "集束箭伤害",
+    stat_Skill_DemonHunter_RainOfVengeance: "复仇之雨伤害",
+    stat_Skill_DemonHunter_Companion: "战宠伤害",
+    stat_Skill_DemonHunter_Bolas: "流星索伤害",
+    stat_Skill_DemonHunter_FanOfKnives: "刀扇伤害",
+    stat_Skill_WitchDoctor_PoisonDart: "剧毒飞镖伤害",
+    stat_Skill_WitchDoctor_Firebats: "火蝠伤害",
+    stat_Skill_WitchDoctor_ZombieDogs: "召唤僵尸犬伤害",
+    stat_Skill_WitchDoctor_WallofZombies: "亡者之墙伤害",
+    stat_Skill_WitchDoctor_LocustSwarm: "瘟疫虫群伤害",
+    stat_Skill_WitchDoctor_PlagueofToads: "蟾蜍之疫伤害",
+    stat_Skill_WitchDoctor_CorpseSpiders: "尸蛛伤害",
+    stat_Skill_WitchDoctor_AcidCloud: "酸蚀之云伤害",
+    stat_Skill_WitchDoctor_SpiritBarrage: "灵魂弹幕伤害",
+    stat_Skill_WitchDoctor_ZombieCharger: "僵尸死士伤害",
+    stat_Skill_WitchDoctor_Piranhas: "食人鱼伤害",
+    stat_Skill_WitchDoctor_FetishArmy: "鬼娃大军伤害",
+    stat_Skill_WitchDoctor_Sacrifice: "牺牲伤害",
+    stat_Skill_WitchDoctor_Haunt: "蚀魂伤害",
+    stat_Skill_WitchDoctor_FireBomb: "烈焰炸弹伤害",
+    stat_Skill_WitchDoctor_GraspOfTheDead: "亡者之握伤害",
+    stat_Skill_WitchDoctor_Gargantuan: "僵尸巨兽伤害",
+    stat_Skill_Monk_Wayof100Fists: "百裂拳伤害",
+    stat_Skill_Monk_SevenSidedStrike: "七相拳伤害",
+    stat_Skill_Monk_LashingTailKick: "神龙摆尾伤害",
+    stat_Skill_Monk_CripplingWave: "断筋诀伤害",
+    stat_Skill_Monk_MysticAlly: "幻身诀伤害",
+    stat_Skill_Monk_DeadlyReach: "冲心拳伤害",
+    stat_Skill_Monk_SweepingWind: "劲风煞伤害",
+    stat_Skill_Monk_FistsofThunder: "雷光拳伤害",
+    stat_Skill_Monk_TempestRush: "风雷冲伤害",
+    stat_Skill_Monk_ExplodingPalm: "爆裂掌伤害",
+    stat_Skill_Monk_WaveofLight: "金钟破伤害",
+    stat_Skill_Monk_CycloneStrike: "飓风破伤害",
+    stat_Skill_Monk_DashingStrike: "疾风击伤害",
+    stat_Skill_Crusader_FallingSword: "天罚之剑伤害",
+    stat_Skill_Crusader_SweepAttack: "横扫伤害",
+    stat_Skill_Crusader_Smite: "链击伤害",
+    stat_Skill_Crusader_Justice: "正义伤害",
+    stat_Skill_Crusader_Condemn: "天谴伤害",
+    stat_Skill_Crusader_ShieldBash: "盾牌猛击伤害",
+    stat_Skill_Crusader_BlessedShield: "祝福之盾伤害",
+    stat_Skill_Crusader_BlessedHammer: "祝福之锤伤害",
+    stat_Skill_Crusader_HeavensFury3: "天堂之怒伤害",
+    stat_Skill_Crusader_Bombardment: "轰击伤害",
+    stat_Skill_Crusader_FistOfTheHeavens: "天堂之拳伤害",
+    stat_Skill_Crusader_Punish: "惩罚伤害",
+    stat_Skill_Crusader_Phalanx: "斗阵伤害",
+    stat_Skill_Crusader_Slash: "烈焰斩伤害",
+    stat_Skill_Necromancer_BoneSpikes: "骨刺伤害",
+    stat_Skill_Necromancer_BoneSpear: "骨矛伤害",
+    stat_Skill_Necromancer_BoneSpirit: "骨魂伤害",
+    stat_Skill_Necromancer_CorpseLance: "尸矛伤害",
+    stat_Skill_Necromancer_Revive: "亡魂复生伤害",
+    stat_Skill_Necromancer_BoneArmor: "骨甲伤害",
+    stat_Skill_Necromancer_BloodNova: "死亡新星伤害",
+    stat_Skill_Necromancer_CommandGolem: "号令傀儡伤害",
+    stat_Skill_Necromancer_CorpseExplosion: "邪爆伤害",
+    stat_Skill_Necromancer_SiphonBlood: "鲜血虹吸伤害",
+    stat_Skill_Necromancer_GrimScythe: "恐镰伤害",
+    stat_Skill_Necromancer_RaiseDead: "骷髅法师伤害",
+    stat_Skill_Necromancer_CommandSkeletons: "号令骸骨伤害",
+    stat_x1_deadmau5_amulet_Barbarian: "使用狂暴者之怒时迷惑敌人（哈尔西翁的飞升）",
+    stat_x1_deadmau5_amulet_Crusader: "使用阿卡拉特勇士时迷惑敌人（哈尔西翁的飞升）",
+    stat_x1_deadmau5_amulet_DemonHunter: "使用复仇时迷惑敌人（哈尔西翁的飞升）",
+    stat_x1_deadmau5_amulet_Monk: "使用灵光悟时迷惑敌人（哈尔西翁的飞升）",
+    stat_deadmau5_amulet_Necromancer: "使用亡者领域时迷惑敌人（哈尔西翁的飞升）",
+    stat_x1_deadmau5_amulet_WitchDoctor: "使用巫毒狂舞时迷惑敌人（哈尔西翁的飞升）",
+    stat_x1_deadmau5_amulet_Wizard: "使用御法者时迷惑敌人（哈尔西翁的飞升）",
+    "Balance": "平衡",
+    "Head": "头盔",
+    "Hands": "手套",
+    "Wrists": "护腕",
+    "Waist": "腰带",
+    "Feet": "鞋子",
+    "Ring 1": "戒指 1",
+    "Ring 2": "戒指 2",
+    "Main-hand": "主手",
+    "Off-hand": "副手",
+    "Dual-Wield": "双持",
+    "Death's Breath": "死亡之息",
+    "Reusable Parts": "万用材料",
+    "Arcane Dust": "奥术之尘",
+    "Veiled Crystal": "萦雾水晶",
+    "Forgotten Soul": "遗忘之魂",
+    "Khanduran Rune": "堪杜拉斯符文",
+    "Caldeum Nightshade": "卡尔蒂姆龙葵蝶",
+    "Arreat War Tapestry": "亚瑞特战争挂毯",
+    "Corrupted Angel Flesh": "腐化的天使肉块",
+    "Westmarch Holy Water": "威斯特玛圣水",
+    "Primordial Ashes": "太古之灰",
+    "Angelic Crucible": "天使坩埚",
     "Akkhan's Addendum": "阿卡恩的补遗",
     "Akkhan's Leniency": "阿卡恩的宽厚",
     "Akkhan's Manacles": "阿卡恩的手铐",
@@ -1481,23 +1652,29 @@ const translations = {
   }
 };
 
-let currentLang = localStorage.getItem("d3r-lang") || "zh";
+// Saved choice first, then the browser's language, then English.
+function initialLang() {
+  try {
+    const saved = localStorage.getItem("d3r-lang");
+    if (saved === "en" || saved === "zh") return saved;
+  } catch (e) { /* storage blocked: fall through */ }
+  const nav = (navigator.languages && navigator.languages[0]) || navigator.language || "";
+  return /^zh\b/i.test(nav) ? "zh" : "en";
+}
+let currentLang = initialLang();
 
 function t(key, params) {
   const dict = translations[currentLang] || translations.en;
   let str = dict[key] || translations.en[key] || key;
   if (params) {
     Object.keys(params).forEach((k) => {
-      str = str.replace(new RegExp(`\\{${k}\\}`, "g"), params[k]);
+      str = str.replace(new RegExp(`\\{${k}\\}`, "g"), () => String(params[k]));
     });
   }
   return str;
 }
 
 window.t = t;
-// Chinese-only lookup used for item/stat/class names so they render in Chinese
-// no matter which UI language is active, matching how CLASS_NAMES always shows Chinese.
-window.tZh = (key) => (translations.zh && translations.zh[key]) || key;
 
 function applyTranslations() {
   document.querySelectorAll("[data-i18n]").forEach(el => {
@@ -1512,6 +1689,10 @@ function applyTranslations() {
     const key = el.getAttribute("data-i18n-title");
     el.setAttribute("title", t(key));
   });
+  document.querySelectorAll("[data-i18n-aria-label]").forEach(el => {
+    const key = el.getAttribute("data-i18n-aria-label");
+    el.setAttribute("aria-label", t(key));
+  });
   const langBtn = document.getElementById("langToggle");
   if (langBtn) langBtn.textContent = currentLang === "en" ? "中文" : "EN";
 }
@@ -1523,7 +1704,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (langBtn) {
     langBtn.addEventListener("click", () => {
       currentLang = currentLang === "en" ? "zh" : "en";
-      localStorage.setItem("d3r-lang", currentLang);
+      try { localStorage.setItem("d3r-lang", currentLang); } catch (e) { /* storage blocked */ }
       applyTranslations();
       window.dispatchEvent(new CustomEvent("d3-lang-change", { detail: currentLang }));
     });

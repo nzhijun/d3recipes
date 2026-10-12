@@ -27,8 +27,6 @@ use std::time::Instant;
 const CLASSES: [&str; 7] = ["DemonHunter", "Barbarian", "Wizard", "WitchDoctor", "Monk", "Crusader", "Necromancer"];
 const MAIN_STEMS: [&str; 9] = ["Str", "Dex", "Int", "StrDex", "StrInt", "StrVit", "DexInt", "DexVit", "IntVit"];
 const NO_MAGNITUDE: [&str; 2] = ["Sockets", "Indestructible"];
-/// the follower token slots (Templar Relic, Enchantress Focus, Scoundrel Token): staples only, never salvage
-const FOLLOWER_SLOTS: [&str; 3] = ["TemplarRelic", "EnchantressFocus", "ScoundrelToken"];
 /// a stop-off ancient or legendary must roll each required stat at this fraction of its maximum (the player's definition)
 const GOOD_ENOUGH: f64 = 0.80;
 
@@ -537,8 +535,8 @@ fn main() {
         carry.get("salvage").cloned().unwrap_or(json!([]))
     } else {
         let d0 = Data::from_json(&data_json).unwrap();
-        // follower tokens have no ancient or primal form: nothing to salvage
-        let slots: Vec<String> = d0.slots.iter().map(|s| s.name.clone()).filter(|n| !FOLLOWER_SLOTS.contains(&n.as_str())).collect();
+        // every slot, the follower tokens too: they roll natural primals like any item (a hardcore Scoundrel Token on cast 9, seen in game)
+        let slots: Vec<String> = d0.slots.iter().map(|s| s.name.clone()).collect();
         let jobs: Vec<(usize, usize)> = (0..slots.len()).flat_map(|k| (0..7).map(move |c| (k, c))).collect();
         let hits = par(o.threads, &data_json, &jobs, |d, &(k, c)| {
             if d.slots[k].pools[c].is_empty() {
@@ -548,7 +546,15 @@ fn main() {
         });
         let mut out: Vec<(u64, String, Value)> = Vec::new();
         for (k, slot) in slots.iter().enumerate() {
-            let best = (0..7).filter_map(|c| hits[k * 7 + c].as_ref().map(|h| (h.cost, CLASSES[c], h))).min_by(|a, b| (a.0, a.1).cmp(&(b.0, b.1)));
+            // a follower token costs the same on every class, but the engine rolls its stats from the crafting class: pick the class
+            // whose main stat is the follower's (Templar Strength, Enchantress Intelligence, Scoundrel Dexterity), so the card names the right stat
+            let only = match slot.as_str() {
+                "TemplarRelic" => Some(5),
+                "EnchantressFocus" => Some(2),
+                "ScoundrelToken" => Some(0),
+                _ => None,
+            };
+            let best = (0..7).filter(|&c| only.map_or(true, |o| o == c)).filter_map(|c| hits[k * 7 + c].as_ref().map(|h| (h.cost, CLASSES[c], h))).min_by(|a, b| (a.0, a.1).cmp(&(b.0, b.1)));
             if let Some((w, c, h)) = best {
                 out.push((w, slot.clone(), json!({"slot": slot, "class": c, "row": simple_row(slot, &h.name, &[], h)})));
             }

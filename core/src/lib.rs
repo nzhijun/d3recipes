@@ -10,6 +10,10 @@ use plan::{Query, Search};
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 
+/// The follower token slots (Templar Relic, Enchantress Focus, Scoundrel Token). They are staples in the prepared lists only:
+/// custom search never offers them, and `search`, `stems` and `stat_max` refuse them.
+pub const FOLLOWER_SLOTS: [&str; 3] = ["TemplarRelic", "EnchantressFocus", "ScoundrelToken"];
+
 /// Loaded game tables; create once, then start any number of searches.
 #[wasm_bindgen]
 pub struct Engine {
@@ -29,6 +33,7 @@ impl Engine {
         let slots: Vec<serde_json::Value> = d
             .slots
             .iter()
+            .filter(|s| !FOLLOWER_SLOTS.contains(&s.name.as_str()))
             .map(|s| {
                 let classes: Vec<usize> = (0..7).filter(|&c| !s.pools[c].is_empty()).collect();
                 serde_json::json!({ "name": s.name, "classes": classes, "cross": s.cross })
@@ -48,6 +53,9 @@ impl Engine {
         let mut native: Vec<Vec<usize>> = vec![Vec::new(); n];
         let mut cross: Vec<Vec<usize>> = vec![Vec::new(); n];
         for (si, s) in d.slots.iter().enumerate() {
+            if FOLLOWER_SLOTS.contains(&s.name.as_str()) {
+                continue;
+            }
             for c in 0..s.pools.len() {
                 for &(item_idx, _w) in &s.pools[c] {
                     slot_of[item_idx] = Some(si);
@@ -78,7 +86,7 @@ impl Engine {
         let d = &self.d;
         let mut sim = sim::Sim::new(d.clone(), class.min(6), true);
         let mut seen: std::collections::BTreeMap<String, String> = std::collections::BTreeMap::new();
-        if let Some(s) = d.slots.iter().find(|s| s.name == slot) {
+        if let Some(s) = d.slots.iter().find(|s| s.name == slot && !FOLLOWER_SLOTS.contains(&s.name.as_str())) {
             for &(item, _) in &s.pools[class.min(6)] {
                 if item_id != 0 && d.items[item].id != item_id {
                     continue;
@@ -102,7 +110,7 @@ impl Engine {
         let d = &self.d;
         let mut sim = sim::Sim::new(d.clone(), class.min(6), true);
         let mut best: std::collections::BTreeMap<String, f64> = std::collections::BTreeMap::new();
-        if let Some(s) = d.slots.iter().find(|s| s.name == slot) {
+        if let Some(s) = d.slots.iter().find(|s| s.name == slot && !FOLLOWER_SLOTS.contains(&s.name.as_str())) {
             for &(item, _) in &s.pools[class.min(6)] {
                 if item_id != 0 && d.items[item].id != item_id {
                     continue;
@@ -130,7 +138,21 @@ impl Engine {
         if q.class >= 7 {
             return Err(JsValue::from_str("class out of range"));
         }
+        if self.names_follower_token(&q) {
+            return Err(JsValue::from_str("follower tokens are not searchable"));
+        }
         Ok(SearchHandle { s: Search::new(self.d.clone(), q) })
+    }
+}
+
+impl Engine {
+    /// does the query name a follower token slot, or one of the items that sit in one?
+    pub fn names_follower_token(&self, q: &Query) -> bool {
+        let d = &self.d;
+        q.slots.iter().any(|s| FOLLOWER_SLOTS.contains(&s.as_str()))
+            || d.slots.iter().filter(|s| FOLLOWER_SLOTS.contains(&s.name.as_str())).any(|s| {
+                s.pools.iter().flatten().any(|&(item, _)| q.items.contains(&d.items[item].id))
+            })
     }
 }
 

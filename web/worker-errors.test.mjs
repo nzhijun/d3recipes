@@ -2,10 +2,11 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {englishT} from './i18n-harness.mjs';
 const source=await readFile(new URL('./worker.js',import.meta.url),'utf8');
 function harness(engine){
   const messages=[],tasks=[];
-  const context=vm.createContext({URL,self:{location:{href:'http://localhost/worker.js'}},postMessage:m=>messages.push(m),setTimeout:fn=>tasks.push(fn),performance:{now:()=>0},mockEngine:engine});
+  const context=vm.createContext({_t:englishT,URL,self:{location:{href:'http://localhost/worker.js'}},postMessage:m=>messages.push(m),setTimeout:fn=>tasks.push(fn),performance:{now:()=>0},mockEngine:engine});
   vm.runInContext(source.replace(/boot\(\)\.catch[^\n]*$/m,'')+'\nengine=mockEngine;',context);
   return {messages,tasks,send:data=>context.onmessage({data})};
 }
@@ -24,7 +25,7 @@ for(const stage of ['run','results'])test('search '+stage+' failure preserves jo
 const editorSource=await readFile(new URL('./create-build.js',import.meta.url),'utf8');
 test('affix error rejects only its import request; fatal errors clear all pending requests',()=>{
   const rejected=[],pending=new Map([['a',{reject:e=>rejected.push(['a',e.message])}],['b',{reject:e=>rejected.push(['b',e.message])}]]);
-  const context=vm.createContext({pending,workerFailure:null,generation:0,notice:()=>{}});
+  const context=vm.createContext({_t:englishT,pending,workerFailure:null,generation:0,notice:()=>{}});
   vm.runInContext(editorSource.slice(editorSource.indexOf('function failRequests('),editorSource.indexOf("worker.addEventListener('error'")),context);
   context.failRequests('bad item','a');assert.equal(pending.has('a'),false);assert.equal(pending.has('b'),true);
   assert.deepEqual(rejected,[['a','bad item']]);
@@ -33,7 +34,7 @@ test('affix error rejects only its import request; fatal errors clear all pendin
 const searchSource=await readFile(new URL('./search-builds.js',import.meta.url),'utf8');
 test('stale search errors are ignored and current errors advance the row',()=>{
   let advanced=0;const cell={textContent:''};
-  const context=vm.createContext({worker:{},active:{row:{index:0}},job:2,document:{getElementById:()=>cell},nextRow:()=>advanced++,engineFailed:()=>{},status:{}});
+  const context=vm.createContext({_t:englishT,worker:{},active:{row:{index:0}},job:2,document:{getElementById:()=>cell},nextRow:()=>advanced++,engineFailed:()=>{},status:{}});
   const start=searchSource.indexOf('worker.onmessage=');
   vm.runInContext(searchSource.slice(start,searchSource.indexOf("window.addEventListener('d3-route'",start)),context);
   context.worker.onmessage({data:{type:'error',id:1,message:'old'}});assert.equal(advanced,0);assert.equal(cell.textContent,'');

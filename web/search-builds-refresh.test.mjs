@@ -2,6 +2,7 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {englishT} from './i18n-harness.mjs';
 const source=await readFile(new URL('./search-builds.js',import.meta.url),'utf8');
 function harness(saved,loaded){
   const controls=new Map();
@@ -9,7 +10,7 @@ function harness(saved,loaded){
   const $=id=>{if(!controls.has(id))controls.set(id,{textContent:'',children:[],replaceChildren(...children){this.children=children;},querySelectorAll:()=>[]});return controls.get(id);};
   const select={value:loaded.id,replaceChildren(){this.value='';},add(){}};
   const messages=[];
-  const context=vm.createContext({searchEnded:()=>{},document:{createElement:element},localStorage:{getItem:()=>JSON.stringify(saved)},key:'builds',select,status:{textContent:''},Option:function(){},$,build:loaded,rows:[{item:1}],active:{row:{}},job:10,info:{items:[]},worker:{postMessage:m=>messages.push(m)},esc:s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),statName:String,itemName:String});
+  const context=vm.createContext({_t:englishT,searchEnded:()=>{},document:{createElement:element},localStorage:{getItem:()=>JSON.stringify(saved)},key:'builds',select,status:{textContent:''},Option:function(){},$,build:loaded,rows:[{item:1}],active:{row:{}},job:10,info:{items:[]},worker:{postMessage:m=>messages.push(m)},esc:s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),statName:String,itemName:String});
   vm.runInContext(source.slice(source.indexOf('function targetStats('),source.indexOf('function bestCandidate('))+source.slice(source.indexOf('function refresh()'),source.indexOf("document.getElementById('search-builds-create')"))+source.slice(source.indexOf('function cancel()'),source.indexOf("select.addEventListener('change'")),context);
   return {context,controls,messages};
 }

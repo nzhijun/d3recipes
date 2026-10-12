@@ -1,13 +1,15 @@
 // Copyright 2026 FNG. Use, modification and redistribution are permitted under the conditions in LICENSE:
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
 // Recipe rendering shared by the custom search (app.js) and the prepared builds (builds.js).
-import { statName, statAbbr, isSecondary, RANGE_STEMS, fmtValue, materials, MATERIAL_ICONS, MATERIAL_GROUPS, SLOT_NAMES } from "./stats.js?v=b8d9a2c3e4";
+import { statName, statAbbr, isSecondary, RANGE_STEMS, fmtValue, materials, MATERIAL_ICONS, MATERIAL_GROUPS, SLOT_NAMES, itemName } from "./stats.js?v=440ee39fb2";
 
 const slotName = (s) => { const t = typeof window !== "undefined" && window.t ? window.t(s) : s; return t !== s ? t : (SLOT_NAMES[s] || s); };
 
 const PLURAL_FIX = { "Chest Armor": "chest armor pieces", Pants: "pants", Boots: "boots", Gloves: "gloves", Bracers: "bracers", Shoulders: "shoulders", Source: "sources" };
 export function slotPlural(slot, n) {
   const s = slotName(slot);
+  // another language has its own names and plurals: use the translated name as it is
+  if (typeof window !== "undefined" && window.t && window.t(slot) !== slot) return s;
   if (n === 1) {
     const one = s.replace(/^(.*) \((\dH)\)$/, "$2 $1");
     return one.toLowerCase().replace(/^(\dh)/, (m) => m.toUpperCase());
@@ -24,7 +26,8 @@ const iconsPresent = true;
 
 export function matIconHtml(name, qty) {
   const ic = MATERIAL_ICONS[name] || { file: "", abbr: name.slice(0, 2), color: "#666" };
-  return `<span class="mat" title="${name}: ${qty.toLocaleString("en-US")}" aria-label="${name}: ${qty.toLocaleString("en-US")}">` +
+  const label = `${itemName(name)}: ${qty.toLocaleString("en-US")}`;
+  return `<span class="mat" title="${label}" aria-label="${label}">` +
     `<span class="fb" style="background:${ic.color}">${ic.abbr}</span>` +
     (ic.file && iconsPresent ? `<img src="icons/${ic.file}" alt="" onload="this.previousElementSibling.remove()" onerror="this.remove()">` : "") +
     `<span class="n">${qty.toLocaleString("en-US")}</span></span>`;
@@ -43,7 +46,7 @@ export function matsHtml(m) {
     const g = MATERIAL_GROUPS.find((x) => x.names.includes(name) && x.names.every((n) => m[n] === qty));
     if (!g) { out.push(matIconHtml(name, qty)); continue; }
     g.names.forEach((n) => grouped.add(n));
-    const label = `${g.names.join(", ")}: ${qty.toLocaleString("en-US")} each`;
+    const label = window.t("matsEach", { names: g.names.map(itemName).join(window.t("listSep")), n: qty.toLocaleString("en-US") });
     out.push(`<span class="mat wide" title="${label}" aria-label="${label}"><img src="icons/${g.file}" alt="">` +
       `<span class="n">${qty.toLocaleString("en-US")}</span></span>`);
   }
@@ -60,7 +63,8 @@ export function stopOn(cp, prev) {
   const lines = cp.lines.filter((l) => l.stem !== "item power" && l.stem !== "Sockets" && l.stem !== "Indestructible");
   const main = lines.find((l) => MAIN.has(l.stem)) || lines[0];
   const val = main ? `${fmtValue(main.stem, main.value)} ${statAbbr(main.stem)}` : "";
-  const prefix = !prev || cp.name !== prev.name ? cp.name : (cp.quality === "ancient" || cp.quality === "primal") ? cp.quality : "";
+  const quality = cp.quality === "ancient" ? window.t("qualityAncient").toLowerCase() : cp.quality === "primal" ? window.t("qualityPrimal").toLowerCase() : "";
+  const prefix = !prev || cp.name !== prev.name ? itemName(cp.name) : quality;
   const w = typeof window !== "undefined" && window.t ? window.t("withShort") : "w/";
   return prefix && val ? `${prefix} ${w} ${val}` : (prefix || val);
 }

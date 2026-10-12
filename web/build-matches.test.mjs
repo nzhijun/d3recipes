@@ -2,8 +2,9 @@ import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import vm from 'node:vm';
+import {englishT} from './i18n-harness.mjs';
 const source=await readFile(new URL('./search-builds.js',import.meta.url),'utf8');
-const context=vm.createContext({});
+const context=vm.createContext({_t:englishT,});
 vm.runInContext(source.slice(source.indexOf('function targetStats('),source.indexOf('function searchItems(')),context);
 test('build results accept only primals and rank eligible matches by stats then cost',()=>{
   const candidate=(tier,count,cost)=>({tier,hit:{matched:Array(count).fill(0),cost}});

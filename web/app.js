@@ -1,10 +1,10 @@
-import {baseQuery,pickHits} from "./search-settings.js?v=b8d9a2c3e4";
+import {baseQuery,pickHits} from "./search-settings.js?v=440ee39fb2";
 // Copyright 2026 FNG. Use, modification and redistribution are permitted under the conditions in LICENSE:
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
-import { statName, statAbbr, isSecondary, RANGE_STEMS, WEAPON_SLOTS, fmtValue, isPct, HIDDEN, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=b8d9a2c3e4";
-import { slotPlural, matsHtml, stepsHtml, mysticCanFinish, tooltipRows, requestHash, parseRequestHash, savedList, savedHas, savedToggle, savedRemove, DEFAULT_CONVERTS, supportsSanctify, defaultSanctifyCap, DEFAULT_SANCTIFY_PRICE } from "./recipe.js?v=b8d9a2c3e4";
+import { statName, statNameEnglish, statAbbr, isSecondary, RANGE_STEMS, WEAPON_SLOTS, fmtValue, isPct, HIDDEN, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=440ee39fb2";
+import { slotPlural, matsHtml, stepsHtml, mysticCanFinish, tooltipRows, requestHash, parseRequestHash, savedList, savedHas, savedToggle, savedRemove, DEFAULT_CONVERTS, supportsSanctify, defaultSanctifyCap, DEFAULT_SANCTIFY_PRICE } from "./recipe.js?v=440ee39fb2";
 
-import { combo, hitHtml, readSettings, searchStarted, searchEnded } from "./ui.js?v=b8d9a2c3e4";
+import { combo, hitHtml, readSettings, searchStarted, searchEnded } from "./ui.js?v=440ee39fb2";
 
 const $ = (id) => document.getElementById(id);
 // Forward the cache-busting version index.html stamped onto our own src= down to the worker, which forwards it
@@ -104,12 +104,19 @@ function updateSanctifyControls() {
   $("sanctifyWarning").hidden = supportsSanctify(season) || ($("sn").value.trim() !== "" && +$("sn").value <= 0);
 }
 
+function renderClassOptions() {
+  const prev = $("cls").value;
+  $("cls").innerHTML = info.classes.map((c, i) => [i, className(c)]).sort((x, y) => x[1].localeCompare(y[1])).map(([i, n]) => `<option value="${i}">${esc(n)}</option>`).join("");
+  if (prev && [...$("cls").options].some((o) => o.value === prev)) $("cls").value = prev;
+}
+
 function start() {
   initTheme();
   initContext();
   $("loading").hidden = true;
   $("app").hidden = false;
-  $("cls").innerHTML = info.classes.map((c, i) => [i, className(c)]).sort((x, y) => x[1].localeCompare(y[1])).map(([i, n]) => `<option value="${i}">${esc(n)}</option>`).join("");
+  renderClassOptions();
+  window.addEventListener("d3-lang-change", () => { renderClassOptions(); syncContext(); });
   $("cls").addEventListener("change", loadStems);
   itemList = info.items;
   combo($("itemFind"), $("itemPick"), itemSource, window.t('noMatchingItem'), pickItem);
@@ -144,15 +151,16 @@ function statSource() {
   return stemList.filter((s) => {
     if (have.has(s.stem)) return false;
     if (!q) return true;
-    if (s.name.toLowerCase().includes(q)) return true;
+    const en = statNameEnglish(s.stem);
+    if (en.toLowerCase().includes(q) || s.name.toLowerCase().includes(q)) return true;
     if (s.stem.toLowerCase().includes(q)) return true;
     const zhName = statName(s.stem);
-    if (zhName !== s.name && zhName.toLowerCase().includes(q)) return true;
+    if (zhName !== en && zhName.toLowerCase().includes(q)) return true;
     return false;
   }).slice(0, 60)
     .map((s) => {
       const zh = statName(s.stem);
-      const en = s.name;
+      const en = statNameEnglish(s.stem);
       const show = zh !== en ? `${esc(zh)} <span class="hint">${esc(en)}</span>` : esc(zh);
       return { value: s.stem, html: show };
     });
@@ -410,7 +418,7 @@ function renderSaved() {
     return;
   }
   const { season, hc } = contextNow();
-  host.innerHTML = `<div class="bhead"><h2>${window.t('savedTitle')}</h2><span class="small">Season ${season} &middot; ${hc ? window.t('hardcore') : window.t('softcore')}</span></div>
+  host.innerHTML = `<div class="bhead"><h2>${window.t('savedTitle')}</h2><span class="small">${window.t('seasonLabel', { s: season })} &middot; ${hc ? window.t('hardcore') : window.t('softcore')}</span></div>
     <div class="actions"><button type="button" class="btn" id="recompute">${window.t('recompute')}</button><span id="savedStatus" class="small"></span></div>` +
     list.map((e) => `<section class="card saved" data-id="${esc(e.id)}"><div class="shead"><h3>${esc(e.label)}</h3>
       <span><a href="${esc(requestHash(e.req, season, hc))}">${window.t('openInSearch')}</a> <button type="button" class="link" data-rm>${window.t('remove')}</button></span></div>
