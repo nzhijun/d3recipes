@@ -1,9 +1,9 @@
-import { KEY, readBuilds as saved, updateBuilds, importPlan, conflictSnapshot, applyImport } from './build-storage.js?v=a7c8b9d0e1';
-import { combo, esc } from './ui.js?v=a7c8b9d0e1';
-import { parseBuildToml } from './build-toml.js?v=a7c8b9d0e1';
+import { KEY, readBuilds as saved, updateBuilds, importPlan, conflictSnapshot, applyImport } from './build-storage.js?v=b8d9a2c3e4';
+import { combo, esc } from './ui.js?v=b8d9a2c3e4';
+import { parseBuildToml } from './build-toml.js?v=b8d9a2c3e4';
 // randomUUID exists only on HTTPS and localhost pages; a self-hosted plain-HTTP page needs the fallback
 const uid=()=>globalThis.crypto?.randomUUID?.()??'b-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
-import { CLASS_NAMES, STATS, statName, HIDDEN, SLOT_NAMES, itemName } from './stats.js?v=a7c8b9d0e1';
+import { CLASS_NAMES, STATS, statName, HIDDEN, SLOT_NAMES, itemName } from './stats.js?v=b8d9a2c3e4';
 const $=id=>document.getElementById('build-'+id);
 const _t=(key,params)=>typeof window!=='undefined'&&typeof window.t==='function'?window.t(key,params):key;
 const slots=['Head','Shoulders','Chest','Hands','Wrists','Waist','Legs','Feet','Amulet','Ring 1','Ring 2','Main-hand','Off-hand','Dual-Wield'];
