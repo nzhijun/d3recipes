@@ -1,10 +1,10 @@
-import {baseQuery,pickHits} from "./search-settings.js?v=f88bec689a";
+import {baseQuery,pickHits} from "./search-settings.js?v=c3f9a6b7d8";
 // Copyright 2026 FNG. Use, modification and redistribution are permitted under the conditions in LICENSE:
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
-import { statName, statAbbr, isSecondary, RANGE_STEMS, WEAPON_SLOTS, fmtValue, isPct, HIDDEN, CLASS_NAMES, SLOT_NAMES, materials } from "./stats.js?v=f88bec689a";
-import { slotPlural, matsHtml, stepsHtml, mysticCanFinish, tooltipRows, requestHash, parseRequestHash, savedList, savedHas, savedToggle, savedRemove, DEFAULT_CONVERTS, supportsSanctify, defaultSanctifyCap, DEFAULT_SANCTIFY_PRICE } from "./recipe.js?v=f88bec689a";
+import { statName, statAbbr, isSecondary, RANGE_STEMS, WEAPON_SLOTS, fmtValue, isPct, HIDDEN, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=c3f9a6b7d8";
+import { slotPlural, matsHtml, stepsHtml, mysticCanFinish, tooltipRows, requestHash, parseRequestHash, savedList, savedHas, savedToggle, savedRemove, DEFAULT_CONVERTS, supportsSanctify, defaultSanctifyCap, DEFAULT_SANCTIFY_PRICE } from "./recipe.js?v=c3f9a6b7d8";
 
-import { combo, hitHtml, readSettings, searchStarted, searchEnded } from "./ui.js?v=f88bec689a";
+import { combo, hitHtml, readSettings, searchStarted, searchEnded } from "./ui.js?v=c3f9a6b7d8";
 
 const $ = (id) => document.getElementById(id);
 // Forward the cache-busting version index.html stamped onto our own src= down to the worker, which forwards it
@@ -48,11 +48,11 @@ worker.onmessage = (e) => {
   if (m.type === "ready") { info = m.info; start(); }
   else if (m.type === "stems") { const r = pending.get(m.key); if (r) { pending.delete(m.key); r({ stems: m.stems, max: m.max }); } }
   else if (m.type === "progress" || m.type === "done") { if (m.id === searchId) onResults(m.results, m.type === "done"); }
-  else if (m.type === "error") { $("status").textContent = "Error: " + m.message; $("go").disabled = false; }
+  else if (m.type === "error") { $("status").textContent = window.t('errorPrefix') + m.message; $("go").disabled = false; }
 };
 
-const className = (c) => CLASS_NAMES[c] || c;
-const slotName = (s) => SLOT_NAMES[s] || s;
+const className = (c) => { const t = typeof window !== "undefined" && window.t ? window.t(c) : c; return t !== c ? t : (CLASS_NAMES[c] || c); };
+const slotName = (s) => { const t = typeof window !== "undefined" && window.t ? window.t(s) : s; return t !== s ? t : (SLOT_NAMES[s] || s); };
 
 // ---------- theme, season / mode ----------
 
@@ -75,7 +75,7 @@ function initTheme() {
 function syncContext() {
   const season = Math.max(1, Math.round(+$("season").value || 40));
   $("sanctifyAvailable").hidden = !supportsSanctify(season);
-  $("ctxText").textContent = `Season ${season} · ${$("hc").value === "1" ? "Hardcore" : "Softcore"}`;
+  $("ctxText").textContent = window.t('seasonCtx', { s: season, m: $("hc").value === "1" ? window.t('hardcore') : window.t('softcore') });
   store.set("season", String(season));
   store.set("hc", $("hc").value);
 }
@@ -90,7 +90,7 @@ function initContext() {
     const open = $("ctxEdit").hidden;
     $("ctxEdit").hidden = !open;
     $("ctxBtn").setAttribute("aria-expanded", String(open));
-    $("ctxBtn").textContent = open ? "done" : "change";
+    $("ctxBtn").textContent = open ? window.t('actionDone') : window.t('ctxChange');
   });
 }
 
@@ -112,8 +112,8 @@ function start() {
   $("cls").innerHTML = info.classes.map((c, i) => [i, className(c)]).sort((x, y) => x[1].localeCompare(y[1])).map(([i, n]) => `<option value="${i}">${esc(n)}</option>`).join("");
   $("cls").addEventListener("change", loadStems);
   itemList = info.items;
-  combo($("itemFind"), $("itemPick"), itemSource, "No matching item", pickItem);
-  combo($("find"), $("pick"), statSource, "No matching stat on this item", (stem) => { wants.push({ stem, min: "" }); renderChips(); });
+  combo($("itemFind"), $("itemPick"), itemSource, window.t('noMatchingItem'), pickItem);
+  combo($("find"), $("pick"), statSource, window.t('noMatchingStatItem'), (stem) => { wants.push({ stem, min: "" }); renderChips(); });
   $("go").addEventListener("click", go);
   initActions();
   updateSanctifyControls(); $("season").addEventListener("input", updateSanctifyControls);
@@ -125,15 +125,37 @@ function start() {
 function itemSource() {
   const q = $("itemFind").value.trim().toLowerCase();
   if (!q) return [];
-  return itemList.filter((it) => it.name.toLowerCase().includes(q)).slice(0, 60)
-    .map((it) => ({ value: it, html: `${esc(it.name)} <span class="hint">${esc(slotName(it.slot))}</span>` }));
+  return itemList.filter((it) => {
+    const en = it.name.toLowerCase();
+    const slot = slotName(it.slot).toLowerCase();
+    const zh = itemName(it.name);
+    return en.includes(q) || slot.includes(q) || (zh !== it.name && zh.toLowerCase().includes(q));
+  }).slice(0, 60)
+    .map((it) => {
+      const zh = itemName(it.name);
+      const showName = zh && zh !== it.name ? `${esc(zh)} <span class="hint">${esc(it.name)}</span>` : esc(it.name);
+      return { value: it, html: `${showName} <span class="hint">${esc(slotName(it.slot))}</span>` };
+    });
 }
 
 function statSource() {
   const q = $("find").value.trim().toLowerCase();
   const have = new Set(wants.map((w) => w.stem));
-  return stemList.filter((s) => !have.has(s.stem) && (!q || s.name.toLowerCase().includes(q) || s.stem.toLowerCase().includes(q))).slice(0, 60)
-    .map((s) => ({ value: s.stem, html: esc(s.name) }));
+  return stemList.filter((s) => {
+    if (have.has(s.stem)) return false;
+    if (!q) return true;
+    if (s.name.toLowerCase().includes(q)) return true;
+    if (s.stem.toLowerCase().includes(q)) return true;
+    const zhName = statName(s.stem);
+    if (zhName !== s.name && zhName.toLowerCase().includes(q)) return true;
+    return false;
+  }).slice(0, 60)
+    .map((s) => {
+      const zh = statName(s.stem);
+      const en = s.name;
+      const show = zh !== en ? `${esc(zh)} <span class="hint">${esc(en)}</span>` : esc(zh);
+      return { value: s.stem, html: show };
+    });
 }
 
 function pickItem(it) {
@@ -148,7 +170,7 @@ function pickItem(it) {
 function renderItemChips() {
   const it = pickedItem;
   $("itemChips").innerHTML = it
-    ? `<div class="chip"><span>${esc(it.name)} <span class="hint">${esc(slotName(it.slot))}</span></span><button title="Choose a different item" aria-label="Choose a different item">&times;</button></div>`
+    ? `<div class="chip"><span>${esc(itemName(it.name))} <span class="hint">${esc(slotName(it.slot))}</span></span><button title="${window.t('chooseDifferentItem')}" aria-label="${window.t('chooseDifferentItem')}">&times;</button></div>`
     : "";
   $("itemFind").hidden = !!it;
   if (!it) $("itemPick").hidden = true;
@@ -198,7 +220,7 @@ function clampMin(stem, v) {
 }
 
 function renderChips() {
-  $("chips").innerHTML = wants.map((w, i) => `<div class="chip"><span>${esc(statName(w.stem))}</span>${w.stem === "Sockets" ? "" : `<input type="number" step="any" min="0"${statMax.has(w.stem) ? ` max="${statMax.get(w.stem)}" title="Highest this item can roll: ${isPct(w.stem) ? statMax.get(w.stem) + " %" : fmtValue(w.stem, statMax.get(w.stem))}"` : ""} placeholder="min${isPct(w.stem) ? " %" : ""}" value="${esc(w.min)}" data-i="${i}">`}<button data-x="${i}" title="Remove" aria-label="Remove">&times;</button></div>`).join("");
+  $("chips").innerHTML = wants.map((w, i) => `<div class="chip"><span>${esc(statName(w.stem))}</span>${w.stem === "Sockets" ? "" : `<input type="number" step="any" min="0"${statMax.has(w.stem) ? ` max="${statMax.get(w.stem)}" title="${window.t('highestRoll', {v: isPct(w.stem) ? statMax.get(w.stem) + " %" : fmtValue(w.stem, statMax.get(w.stem))})}"` : ""} placeholder="${window.t('minPh')}${isPct(w.stem) ? " %" : ""}" value="${esc(w.min)}" data-i="${i}">`}<button data-x="${i}" title="${window.t('remove')}" aria-label="${window.t('remove')}">&times;</button></div>`).join("");
   $("chips").querySelectorAll("input").forEach((el) => {
     el.addEventListener("input", () => { wants[+el.dataset.i].min = el.value; });
     // out-of-range numbers are pulled back to the nearest roll the item can have when the box is left
@@ -238,7 +260,7 @@ function startTier() {
   if (t.crafted && q.max_primalize < 1) { nextTier(); return; }
   searchId += 1;
   worker.postMessage({ type: "search", id: searchId, query: q, budgetMs: budget });
-  run.onUpdate(run, false, `Searching for ${t.label} recipes…`);
+  run.onUpdate(run, false, window.t('searchingRecipes', { t: t.label }));
 }
 
 function nextTier() {
@@ -284,7 +306,7 @@ let lastApplied = "";     // the request link already loaded into the form
 let notice = "";          // one line to show under the next finished search (a link replaced the visitor's season or mode)
 
 function go() {
-  if (!pickedItem) { $("status").textContent = "Search for an item you want first."; return; }
+  if (!pickedItem) { $("status").textContent = window.t('searchFirstItem'); return; }
   const req = readRequest(), { season, hc } = contextNow();
   const secs = Math.max(1, Math.round(+$("secs").value || 0));
   last = { req, item: pickedItem, season, hc };
@@ -299,7 +321,7 @@ function go() {
     (r, final, status) => { if (status) $("status").textContent = status; else $("out").innerHTML = resultsHtml(r, false); },
     (r) => {
       $("go").disabled = false;
-      $("status").textContent = r.stopped ? "Stopped at the time limit — showing the best found so far. A longer time limit may find more." : note;
+      $("status").textContent = r.stopped ? window.t('stoppedAtLimit') : note;
       $("out").innerHTML = resultsHtml(r, true);
       showActions();
       dropStale();   // the season or mode changed while this search ran: its results answer the old ones
@@ -313,31 +335,31 @@ function dropStale() {
   if (!last || (last.season === season && last.hc === hc) || $("go").disabled) return;
   $("out").innerHTML = "";
   $("actions").hidden = true;
-  $("status").textContent = `Season or mode changed: search again for Season ${season} · ${hc ? "Hardcore" : "Softcore"}.`;
+  $("status").textContent = window.t('ctxChanged', { s: season, m: hc ? window.t('hardcore') : window.t('softcore') });
 }
 $("season").addEventListener("input", dropStale);
 $("hc").addEventListener("change", dropStale);
 
-const labelOf = (item, req) => `${item.name} · ${req.w.map(([s]) => statAbbr(s)).join(", ") || "any roll"}`;
+const labelOf = (item, req) => `${itemName(item.name)} · ${req.w.map(([s]) => statAbbr(s)).join(", ") || "any roll"}`;
 
 function showActions() {
   $("actions").hidden = false;
   $("actionNote").textContent = "";
-  $("saveBtn").textContent = savedHas(last.req) ? "Saved ✓ (remove)" : "Save";
+  $("saveBtn").textContent = savedHas(last.req) ? window.t('savedToggleOn') : window.t('savedToggleOff');
 }
 
 function initActions() {
   $("copyLink").addEventListener("click", async () => {
     if (!last) return;
     const url = location.origin + location.pathname + requestHash(last.req, last.season, last.hc);
-    try { await navigator.clipboard.writeText(url); $("actionNote").textContent = "Link copied."; }
-    catch (e) { $("actionNote").textContent = "Copy the address from the address bar."; }
+    try { await navigator.clipboard.writeText(url); $("actionNote").textContent = window.t('linkCopied'); }
+    catch (e) { $("actionNote").textContent = window.t('copyAddress'); }
   });
   $("saveBtn").addEventListener("click", () => {
     if (!last) return;
     const now = savedToggle(last.req, labelOf(last.item, last.req));
-    $("saveBtn").textContent = now ? "Saved ✓ (remove)" : "Save";
-    $("actionNote").textContent = now ? "Added to Saved." : "Removed from Saved.";
+    $("saveBtn").textContent = now ? window.t('savedToggleOn') : window.t('savedToggleOff');
+    $("actionNote").textContent = now ? window.t('addedToSaved') : window.t('removedFromSaved');
   });
 }
 
@@ -345,7 +367,7 @@ function initActions() {
 async function applyLink(parsed) {
   const { req, season, hc } = parsed;
   const it = itemList.find((x) => x.id === req.i);
-  if (!it || !info.classes[req.c]) { $("status").textContent = "This link names an item or class this version does not know."; return; }
+  if (!it || !info.classes[req.c]) { $("status").textContent = window.t('linkNamesUnknown'); return; }
   const was = contextNow();
   $("season").value = String(season);
   $("hc").value = hc ? "1" : "0";
@@ -367,7 +389,7 @@ async function applyLink(parsed) {
   wants = req.w.map(([stem, min]) => ({ stem, min }));
   await loadStems();   // drops any stat the item cannot roll and redraws the chips
   if (was.season !== season || was.hc !== hc) {
-    notice = `Opened a link for Season ${season} · ${hc ? "Hardcore" : "Softcore"} (your own setting was ${was.season} · ${was.hc ? "Hardcore" : "Softcore"}; change it at the top).`;
+    notice = window.t('openedLink', { s: season, m: hc ? window.t('hardcore') : window.t('softcore'), os: was.season, om: was.hc ? window.t('hardcore') : window.t('softcore') });
   }
   go();
 }
@@ -384,15 +406,15 @@ function renderSaved() {
   const list = savedList();
   stopSaved();
   if (!list.length) {
-    host.innerHTML = `<div class="card empty">Nothing saved yet. Run a search, then press Save under the results.</div>`;
+    host.innerHTML = `<div class="card empty">${window.t('nothingSavedYetDesc')}</div>`;
     return;
   }
   const { season, hc } = contextNow();
-  host.innerHTML = `<div class="bhead"><h2>Saved</h2><span class="small">Season ${season} &middot; ${hc ? "Hardcore" : "Softcore"}</span></div>
-    <div class="actions"><button type="button" class="btn" id="recompute">Recompute</button><span id="savedStatus" class="small"></span></div>` +
+  host.innerHTML = `<div class="bhead"><h2>${window.t('savedTitle')}</h2><span class="small">Season ${season} &middot; ${hc ? window.t('hardcore') : window.t('softcore')}</span></div>
+    <div class="actions"><button type="button" class="btn" id="recompute">${window.t('recompute')}</button><span id="savedStatus" class="small"></span></div>` +
     list.map((e) => `<section class="card saved" data-id="${esc(e.id)}"><div class="shead"><h3>${esc(e.label)}</h3>
-      <span><a href="${esc(requestHash(e.req, season, hc))}">open in search</a> <button type="button" class="link" data-rm>remove</button></span></div>
-      <div class="sout small">Waiting&hellip;</div></section>`).join("");
+      <span><a href="${esc(requestHash(e.req, season, hc))}">${window.t('openInSearch')}</a> <button type="button" class="link" data-rm>${window.t('remove')}</button></span></div>
+      <div class="sout small">${window.t('waiting')}</div></section>`).join("");
   host.querySelectorAll("[data-rm]").forEach((b) => b.addEventListener("click", () => {
     const sec = b.closest("section.saved");
     savedRemove(sec.dataset.id);
@@ -413,8 +435,8 @@ function computeSaved(list, season, hc, token) {
     const sec = [...$("viewSaved").querySelectorAll("section.saved")].find((s) => s.dataset.id === e.id);
     if (!sec) { step(k + 1); return; }
     const out = sec.querySelector(".sout");
-    if (!item || !info.classes[req.c]) { out.textContent = "This item is not in this version."; step(k + 1); return; }
-    status.textContent = `Computing ${k + 1} of ${list.length}…`;
+    if (!item || !info.classes[req.c]) { out.textContent = window.t('itemNotInVersion'); step(k + 1); return; }
+    status.textContent = window.t('computingProgress', { n: k + 1, t: list.length });
     startRun(req, item, season, hc, 20,
       (r, final, st) => { if (!st) { out.classList.remove("small"); out.innerHTML = resultsHtml(r, false); } },
       (r) => { out.classList.remove("small"); out.innerHTML = resultsHtml(r, true); step(k + 1); },
@@ -471,12 +493,12 @@ function resultsHtml(run, final) {
   if (shown.length) html += `<section class="card">${body}</section>`;
   else if (final) {
     const why = run.po && !run.stopped && !run.capped
-      ? "No primal recipe found. Try fewer stats or a longer time limit, or untick Primal only."
+      ? window.t('noPrimalRecipeFound')
       : run.stopped
-      ? "Nothing passable turned up before the time limit. Raise the time limit under Costs and Limits or drop a stat."
+      ? window.t('nothingBeforeLimit')
       : run.capped
-        ? "No recipe turned up within the search limit. Try fewer stats or a lower good-roll floor."
-        : "No passable recipe found. Try fewer stats or a lower good-roll floor.";
+        ? window.t('noRecipeInLimit')
+        : window.t('noPassableRecipe');
     html += `<section class="card"><div class="empty">${why}</div></section>`;
   }
   return html;

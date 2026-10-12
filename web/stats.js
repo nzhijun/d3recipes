@@ -48,6 +48,8 @@ const alias = (stem) => {
 };
 
 export function statName(stem) {
+  const i18nKey = "stat_" + stem;
+  if (typeof window !== "undefined" && window.t && window.t(i18nKey) !== i18nKey) return window.t(i18nKey);
   if (STATS[alias(stem)]) return STATS[alias(stem)][0];
   // Halcyon's Ascent's power, one per class ("x1_deadmau5_amulet_Wizard"): enemies are mesmerized when the hero uses that class's big cooldown
   let m = /^(?:x1_)?deadmau5_amulet_(\w+)$/.exec(stem);
@@ -159,3 +161,15 @@ export const MATERIAL_ICONS = {
   "Primordial Ashes": { file: "primordial-ashes.webp", abbr: "PA", color: "#c2562b" },
   "Angelic Crucible": { file: "angelic-crucible.webp", abbr: "AC", color: "#c9b471" },
 };
+
+export function itemName(name) {
+  if (!name) return name;
+  if (typeof window !== "undefined") {
+    const lookup = window.tZh || window.t;
+    if (typeof lookup === "function") {
+      const translated = lookup(name);
+      if (translated !== name) return translated;
+    }
+  }
+  return name;
+}

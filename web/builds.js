@@ -2,9 +2,9 @@
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
 // Prepared builds: the side/top navigation and the per-build recipe pages. Reads premade_sc.json / premade_hc.json
 // (see export_premade.py); needs no wasm, so it is usable before the search engine has finished loading.
-import { statName, statAbbr, CLASS_NAMES, SLOT_NAMES, materials } from "./stats.js?v=f88bec689a";
-import { stepsHtml, matsHtml, tooltipRows, savedList, requestHash } from "./recipe.js?v=f88bec689a";
-import { esc } from "./ui.js?v=f88bec689a";
+import { statName, statAbbr, CLASS_NAMES, SLOT_NAMES, materials, itemName } from "./stats.js?v=c3f9a6b7d8";
+import { stepsHtml, matsHtml, tooltipRows, savedList, requestHash } from "./recipe.js?v=c3f9a6b7d8";
+import { esc } from "./ui.js?v=c3f9a6b7d8";
 
 const $ = (id) => document.getElementById(id);
 const V = new URL(import.meta.url).searchParams.get("v");
@@ -15,7 +15,7 @@ let route = "search";             // "search" (the start page) | "staples" | bui
 let current = null;               // loaded data for the active mode
 
 const modeKey = () => ($("hc").value === "1" ? "hc" : "sc");
-const className = (c) => CLASS_NAMES[c] || c;
+const className = (c) => { const t = typeof window !== "undefined" && window.t ? window.t(c) : c; return t !== c ? t : (CLASS_NAMES[c] || c); };
 // the class index the generator writes in `by` / `who` / `mystic_by` (the order of data.json's `classes`)
 const CLASS_ORDER = ["DemonHunter", "Barbarian", "Wizard", "WitchDoctor", "Monk", "Crusader", "Necromancer"];
 const heroName = (c) => className(CLASS_ORDER[c]);
@@ -60,11 +60,8 @@ const handOvers = (row, who) => {
 };
 const costOf = (n, path, row, who) => Number((n + [...path].reduce((a, c) => a + (PRICE[c] || 0), 0) + (row ? handOvers(row, who) : 0)).toFixed(2));
 const stepsOf = (n, path) => n + path.length;
-const COST_TIP = "Relative cost: Hope of Cain 1, Reforge 5, Convert Set Item 0.75, Improve Legendary 25. Steps: crafts plus operations.";
-// The numbers are for the site's owner (deciding what to ship), not for players, whose materials row says what a recipe costs:
-// they only show when the address carries ?costs.
 const SHOW_COSTS = new URLSearchParams(location.search).has("costs");
-const costHtml = (n, path, row, who) => (SHOW_COSTS ? `<span class="cost" title="${COST_TIP}">cost ${costOf(n, path, row, who)} &middot; ${stepsOf(n, path)} steps</span>` : "");
+const costHtml = (n, path, row, who) => (SHOW_COSTS ? `<span class="cost" title="${window.t('costTip')}">${window.t('cost')} ${costOf(n, path, row, who)} &middot; ${stepsOf(n, path)} ${window.t('steps')}</span>` : "");
 
 const linesOf = (tt) => tt.map(([stem, value, max]) => ({ stem, value, max }));
 
@@ -75,7 +72,7 @@ function fullTooltip(tt, need) {
     const w = want.has(r.stem);
     return `<span class="${w ? "want" : ""}">${esc(r.label)}</span><span class="v ${w ? "want" : ""}">${esc(r.value)}</span>`;
   }).join("");
-  return `<details class="full" open><summary>Full tooltip</summary><div class="lines">${rows}</div></details>`;
+  return `<details class="full" open><summary>${window.t('fullTooltip')}</summary><div class="lines">${rows}</div></details>`;
 }
 
 function recipeBody(row, path, lin, tt, note = "", tooltip = true, who = row.who) {
@@ -86,27 +83,31 @@ function recipeBody(row, path, lin, tt, note = "", tooltip = true, who = row.who
   return (row.intro ? `<p class="mk">${row.intro}</p>` : "") + stepsHtml(h, [], new Set(row.need), heroes) + note + `<div class="mats">${mats}</div>` + (tooltip ? fullTooltip(tt, row.need) : "");
 }
 
-const QUALITY = { primal: ["Primal", "t-primal"], crafted: ["Crafted primal", "t-primal"], ancient: ["Ancient", "t-ancient"], normal: ["Legendary", "t-normal"] };
+const QUALITY = {
+  primal: [() => window.t('qualityPrimal'), "t-primal"],
+  crafted: [() => window.t('qualityCraftedPrimal'), "t-primal"],
+  ancient: [() => window.t('qualityAncient'), "t-ancient"],
+  normal: [() => window.t('qualityLegendary'), "t-normal"]
+};
 
 function rowHtml(row, tooltip = true) {
-  const name = !row.item ? "" : `<span class="nm">${esc(row.item)}${row.cubed ? ' <span class="cb">(cubed)</span>' : ""}${row.any ? ' <span class="cb">(any item)</span>' : ""}</span>`;
+  const name = !row.item ? "" : `<span class="nm">${esc(itemName(row.item))}${row.cubed ? ` <span class="cb">${window.t('cubed')}</span>` : ""}${row.any ? ` <span class="cb">${window.t('anyItem')}</span>` : ""}</span>`;
   if (!row.found) {
-    return `<div class="rec"><div class="nm">${esc(row.item)}</div><div class="small">No natural primal turned up within the search limits. Try refining the search in <a href="./" data-route="search">Custom search</a>.</div></div>`;
+    return `<div class="rec"><div class="nm">${esc(itemName(row.item))}</div><div class="small">${window.t('noNaturalPrimal')} <a href="./" data-route="search">${window.t('customSearch')}</a>.</div></div>`;
   }
   const [qt, qc] = QUALITY[row.q] || QUALITY.normal;
   const stats = row.need.map((s) => `<span class="want">${esc(statAbbr(s))}</span>`).join(", ");
-  // the Mystic hero is named when it is not the one holding the item after the last cube step
   const holder = row.who ? (row.who.length ? row.who[row.who.length - 1] : row.craft) : undefined;
-  const mysticBy = row.mystic && row.who && row.mystic_by !== holder ? ` as ${esc(heroName(row.mystic_by))}` : "";
+  const mysticBy = row.mystic && row.who && row.mystic_by !== holder ? ` ${window.t('asClass', { c: esc(heroName(row.mystic_by)) })}` : "";
   const mystic = row.mystic ? ` <span class="small">+ Mystic${mysticBy}: ${esc(statName(row.mystic))}</span>`
-    : row.nomystic ? ` <span class="small">(no room for ${esc(statName(row.nomystic))} at the Mystic)</span>` : "";
-  const craftedNote = row.q === "crafted" ? `<div class="small">Improve Legendary primals: only one can be worn per character.</div>` : "";
+    : row.nomystic ? ` <span class="small">${window.t('noRoomFor', { s: esc(statName(row.nomystic)) })}</span>` : "";
+  const craftedNote = row.q === "crafted" ? `<div class="small">${window.t('improveLegendaryPrimalNote')}</div>` : "";
   const cheap = (row.cheap || []).map((c) => {
-    const [t] = QUALITY[c.q] || QUALITY.normal;
-    return `<details class="full cheap"><summary>Cheaper: ${t.toLowerCase()}${SHOW_COSTS ? `, cost ${costOf(row.n, c.path, row, c.who)} (${stepsOf(row.n, c.path)} steps)` : ""}</summary>${recipeBody(row, c.path, c.lin, c.tt, "", tooltip, c.who)}</details>`;
+    const [ct] = QUALITY[c.q] || QUALITY.normal;
+    return `<details class="full cheap"><summary>${window.t('cheaper')} ${ct().toLowerCase()}${SHOW_COSTS ? `, ${window.t('cost')} ${costOf(row.n, c.path, row, c.who)} (${stepsOf(row.n, c.path)} ${window.t('steps')})` : ""}</summary>${recipeBody(row, c.path, c.lin, c.tt, "", tooltip, c.who)}</details>`;
   }).join("");
   return `<details class="rec"><summary${row.item ? "" : ' class="noname"'}>${name}
-    <span class="meta"><span class="tag ${qc}">${qt}</span><span class="aff">${stats}</span>${mystic}${costHtml(row.n, row.path, row, row.who)}</span></summary>
+    <span class="meta"><span class="tag ${qc}">${qt()}</span><span class="aff">${stats}</span>${mystic}${costHtml(row.n, row.path, row, row.who)}</span></summary>
     <div class="body">${recipeBody(row, row.path, row.lin, row.tt, craftedNote, tooltip)}${cheap}</div></details>`;
 }
 
@@ -116,10 +117,10 @@ function buildHtml(b, data) {
     const last = slots[slots.length - 1];
     if (last && last.name === r.slot) last.rows.push(r); else slots.push({ name: r.slot, rows: [r] });
   }
-  const sc = data.hardcore ? "Hardcore" : "Softcore";
+  const sc = data.hardcore ? window.t("hardcore") : window.t("softcore");
   const head = `<div class="bhead"><h2>${esc(b.title)}</h2><span class="small">${esc(className(b.class))} &middot; Season ${data.season} &middot; ${sc}</span></div>`;
   const note = +$("season").value !== data.season
-    ? `<div class="warn modeflag">These recipes are for season ${data.season}. Other seasons roll different items, so they will not match.</div>` : "";
+    ? `<div class="warn modeflag">${window.t('theseRecipesForSeason', { s: data.season })}</div>` : "";
   const cards = slots.map((s) => `<section class="card slot"><h3>${esc(s.name)}</h3>${s.rows.map((r) => rowHtml(r)).join("")}</section>`).join("");
   return head + note + cards;
 }
@@ -127,12 +128,12 @@ function buildHtml(b, data) {
 // ---------- staples: class-agnostic items, each made on whichever class is cheapest ----------
 
 function staplesHtml(data) {
-  const sc = data.hardcore ? "Hardcore" : "Softcore";
-  const head = `<div class="bhead"><h2>Staples</h2><span class="small">Any class &middot; Season ${data.season} &middot; ${sc}</span></div>
-    <p class="small" style="margin:0 0 12px">Items worth having whatever you play. The Hope of Cain chain differs per class, so each is made on the class where it is cheapest.</p>`;
+  const sc = data.hardcore ? window.t("hardcore") : window.t("softcore");
+  const head = `<div class="bhead"><h2>${window.t('staplesTitle')}</h2><span class="small">${window.t('anyClass')} &middot; Season ${data.season} &middot; ${sc}</span></div>
+    <p class="small" style="margin:0 0 12px">${window.t('staplesDesc')}</p>`;
   const cards = data.staples.map((st) => {
     const t = st.tier;
-        const body = t ? rowHtml({ ...t.row, item: st.label, intro: `Make a ${esc(className(t.class))}`, cubed: false, mystic: null }, t.row.need.length > 0) : '<div class="small">No route found.</div>';
+        const body = t ? rowHtml({ ...t.row, item: st.label, intro: `${window.t('makeClass', { c: esc(className(t.class)) })}`, cubed: false, mystic: null }, t.row.need.length > 0) : `<div class="small">${window.t('noRouteFound')}</div>`;
     return `<section class="card slot"><h3>${esc(st.item)}</h3>${st.note ? `<p class="small" style="margin:0 0 8px">${esc(st.note)}</p>` : ""}${body}</section>`;
   }).join("");
   return head + cards;
@@ -141,17 +142,17 @@ function staplesHtml(data) {
 // ---------- cheapest natural primal per slot, for salvaging ----------
 
 function salvageHtml(data) {
-  const sc = data.hardcore ? "Hardcore" : "Softcore";
-  const head = `<div class="bhead"><h2>Cheap primal for salvaging</h2><span class="small">Any class &middot; Season ${data.season} &middot; ${sc}</span></div>
-    <p class="small" style="margin:0 0 12px">The quickest natural primal in each slot, any item, on whichever class is cheapest. Improve Legendary is never used, so none of this costs Primordial Ashes. Cheapest first.</p>`;
+  const sc = data.hardcore ? window.t("hardcore") : window.t("softcore");
+  const head = `<div class="bhead"><h2>${window.t('cheapPrimalSalvagingTitle')}</h2><span class="small">${window.t('anyClass')} &middot; Season ${data.season} &middot; ${sc}</span></div>
+    <p class="small" style="margin:0 0 12px">${window.t('cheapPrimalSalvagingDesc')}</p>`;
   const rows = data.salvage.map((a) => {
     const r = a.row;
     const slot = SLOT_NAMES[a.slot] || a.slot;
     return `<details class="rec"><summary><span class="nm">${esc(slot)}</span>
-      <span class="meta"><span class="aff">Make a ${esc(className(a.class))}</span>${costHtml(r.n, r.path, r, r.who)}</span></summary>
-      <div class="body">${recipeBody(r, r.path, r.lin, r.tt, `<div class="small">You get: ${esc(r.item)}</div>`, false)}</div></details>`;
+      <span class="meta"><span class="aff">${window.t('makeClass', { c: esc(className(a.class)) })}</span>${costHtml(r.n, r.path, r, r.who)}</span></summary>
+      <div class="body">${recipeBody(r, r.path, r.lin, r.tt, `<div class="small">${window.t('youGet')} ${esc(itemName(r.item))}</div>`, false)}</div></details>`;
   }).join("");
-  return head + `<section class="card slot">${rows || '<div class="small">Nothing found.</div>'}</section>`;
+  return head + `<section class="card slot">${rows || `<div class="small">${window.t('nothingFound')}</div>`}</section>`;
 }
 
 // ---------- navigation ----------
@@ -168,14 +169,14 @@ function savedHtml() {
   const saved = savedList();
   if (!saved.length) return "";
   const season = Math.max(1, Math.round(+$("season").value || 40)), hc = $("hc").value === "1";
-  return `<div class="grp"><span class="gl">Saved</span>${navLink("saved", `All saved (${saved.length})`)}` +
+  return `<div class="grp"><span class="gl">${window.t('navSaved')}</span>${navLink("saved", `${window.t('allSaved')} (${saved.length})`)}` +
     saved.map((e) => { const h = esc(requestHash(e.req, season, hc)); return `<a class="nb" href="${h}" data-link="${h}">${esc(e.label)}</a>`; }).join("") + `</div>`;
 }
 
 function navHtml(data) {
   if (!listed(data)) {
-    return `<div class="grp">${navLink("search", "Custom search", "mode")}${navLink("create-build", "Edit builds", "mode")}${navLink("search-builds", "Search build items", "mode")}</div>` + savedHtml() +
-      `<div class="grp"><span class="small">No prepared builds for season ${Math.max(1, Math.round(+$("season").value || 40))}. Custom search works for any season.</span></div>`;
+    return `<div class="grp">${navLink("search", window.t('customSearch'), "mode")}${navLink("create-build", window.t('editBuildsNav'), "mode")}${navLink("search-builds", window.t('searchBuildItemsNav'), "mode")}</div>` + savedHtml() +
+      `<div class="grp"><span class="small">${window.t('noPreparedBuilds', { s: Math.max(1, Math.round(+$("season").value || 40)) })}</span></div>`;
   }
   const groups = [];
   for (const b of data.builds) {
@@ -184,9 +185,9 @@ function navHtml(data) {
     g.list.push(b);
   }
   const btn = navLink;
-  return `<div class="grp">${btn("search", "Custom search", "mode")}${btn("create-build", "Edit builds", "mode")}${btn("search-builds", "Search build items", "mode")}</div>` + savedHtml() +
-    (data.staples && data.staples.length ? `<div class="grp"><span class="gl">Any class</span>${btn("staples", "Staples")}${data.salvage && data.salvage.length ? btn("salvage", "Cheap primals") : ""}</div>` : "") +
-    `<div class="grp"><span class="gl top">Builds</span></div>` +
+  return `<div class="grp">${btn("search", window.t('customSearch'), "mode")}${btn("create-build", window.t('editBuildsNav'), "mode")}${btn("search-builds", window.t('searchBuildItemsNav'), "mode")}</div>` + savedHtml() +
+    (data.staples && data.staples.length ? `<div class="grp"><span class="gl">${window.t('anyClass')}</span>${btn("staples", window.t('staples'))}${data.salvage && data.salvage.length ? btn("salvage", window.t('cheapPrimals')) : ""}</div>` : "") +
+    `<div class="grp"><span class="gl top">${window.t('builds')}</span></div>` +
     groups.map((g) => `<div class="grp"><span class="gl">${esc(className(g.cls))}</span>${g.list.map((b) => btn(b.id, esc(b.title))).join("")}</div>`).join("");
 }
 
@@ -208,7 +209,7 @@ $("viewSearchBuilds").hidden = route !== "search-builds";
   }
   if (isBuild && current) {
     const b = current.builds.find((x) => x.id === route);
-    $("viewBuild").innerHTML = route === "staples" ? staplesHtml(current) : route === "salvage" ? salvageHtml(current) : b ? buildHtml(b, current) : `<div class="card empty">No such build.</div>`;
+    $("viewBuild").innerHTML = route === "staples" ? staplesHtml(current) : route === "salvage" ? salvageHtml(current) : b ? buildHtml(b, current) : `<div class="card empty">${window.t('noSuchBuild')}</div>`;
     // a card holding exactly one recipe opens from a click anywhere on it (see the click handler below)
     $("viewBuild").querySelectorAll("section.slot").forEach((c) => c.classList.toggle("single", c.querySelectorAll(":scope > details.rec").length === 1));
   }
@@ -243,7 +244,7 @@ async function refresh() {
   try {
     current = await load(modeKey());
   } catch (e) {
-    $("nav").innerHTML = `<span class="small">Could not load the prepared builds (${esc(e.message)}). Custom search still works.</span>`;
+    $("nav").innerHTML = `<span class="small">${window.t('couldNotLoadPrepared', { e: esc(e.message) })}</span>`;
     fromHash();
     show();   // the search and saved views need no prepared data
     return;
@@ -288,3 +289,4 @@ $("viewSearch").hidden = route !== "search";
 $("viewCreateBuild").hidden = route !== "create-build";
 $("viewSearchBuilds").hidden = route !== "search-builds";
 refresh();
+window.addEventListener("d3-lang-change", () => { if (current) show(); });

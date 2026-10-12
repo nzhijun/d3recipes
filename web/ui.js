@@ -1,8 +1,8 @@
 // Copyright 2026 FNG. Use, modification and redistribution are permitted under the conditions in LICENSE:
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
 // Shared page pieces: the type-ahead picker and the recipe result card, used by custom search and the build pages.
-import { statAbbr, isSecondary, RANGE_STEMS, WEAPON_SLOTS, materials } from "./stats.js?v=f88bec689a";
-import { matsHtml, stepsHtml, tooltipRows, supportsSanctify, defaultSanctifyCap, DEFAULT_SANCTIFY_PRICE } from "./recipe.js?v=f88bec689a";
+import { statAbbr, isSecondary, RANGE_STEMS, WEAPON_SLOTS, materials } from "./stats.js?v=c3f9a6b7d8";
+import { matsHtml, stepsHtml, tooltipRows, supportsSanctify, defaultSanctifyCap, DEFAULT_SANCTIFY_PRICE } from "./recipe.js?v=c3f9a6b7d8";
 
 // ---------- keyboard-navigable autocomplete ----------
 // source() -> [{html, value}] for the current text; Up/Down move, Enter (or click) picks, Escape closes.
@@ -16,7 +16,7 @@ export function combo(input, box, source, emptyText, onPick) {
   const paint = () => {
     box.innerHTML = items.length
       ? items.map((x, i) => `<div role="option" data-i="${i}">${x.html}</div>`).join("") +
-        `<div class="keys" aria-hidden="true"><kbd>&uarr;</kbd><kbd>&darr;</kbd> move <kbd>&crarr;</kbd> select <kbd>esc</kbd> close</div>`
+        `<div class="keys" aria-hidden="true"><kbd>&uarr;</kbd><kbd>&darr;</kbd> ${window.t('keyboardMove')} <kbd>&crarr;</kbd> ${window.t('keyboardSelect')} <kbd>esc</kbd> ${window.t('keyboardClose')}</div>`
       : `<div class="empty">${emptyText}</div>`;
     setActive(active, false);
   };
@@ -69,10 +69,10 @@ export function combo(input, box, source, emptyText, onPick) {
 }
 
 const TAGS = {
-  primal:  { best: ["Best", "t-best"], part: ["Finish at Mystic", "t-best"] },
-  crafted: { best: ["Best · crafted primal", "t-best"], part: ["Crafted primal · finish at Mystic", "t-best"] },
-  ancient: { best: ["Great ancient", "t-ancient"], part: ["Great ancient · finish at Mystic", "t-ancient"] },
-  normal:  { best: ["Legendary", "t-normal"], part: ["Legendary · finish at Mystic", "t-normal"] },
+  primal:  { best: [() => window.t('tagBest'), "t-best"], part: [() => window.t('tagFinishMystic'), "t-best"] },
+  crafted: { best: [() => window.t('tagBestCraftedPrimal'), "t-best"], part: [() => window.t('tagCraftedPrimalFinishMystic'), "t-best"] },
+  ancient: { best: [() => window.t('tagGreatAncient'), "t-ancient"], part: [() => window.t('tagGreatAncientFinishMystic'), "t-ancient"] },
+  normal:  { best: [() => window.t('tagLegendary'), "t-normal"], part: [() => window.t('tagLegendaryFinishMystic'), "t-normal"] },
 };
 
 
@@ -83,8 +83,6 @@ export function hitHtml(h, tier, snap, item, cls, season, heroName) {
   const missing = snap.filter((_, i) => !h.matched.includes(i));
   const perfect = !missing.length;
   const [tagText, tagCls] = TAGS[tier][perfect ? "best" : "part"];
-  // Headline: the requested stats the item rolls (highlighted), then any other PRIMARY stats it rolled; secondary stats only when
-  // requested. A recipe that finishes at the Mystic ends with the stat the Mystic is to roll.
   const seen = new Set();
   const parts = [];
   for (const s of snap) {
@@ -94,22 +92,22 @@ export function hitHtml(h, tier, snap, item, cls, season, heroName) {
   for (const l of h.lines) {
     if (l.stem === "item power" || seen.has(l.stem) || isSecondary(l.stem) || l.stem === "Sockets" || l.stem === "Indestructible") continue;
     if (wantStems.has(l.stem)) continue;
-    if (onWeapon && RANGE_STEMS.has(l.stem)) continue;   // every weapon rolls its damage; it is a given, so it stays in the full tooltip
+    if (onWeapon && RANGE_STEMS.has(l.stem)) continue;
     seen.add(l.stem);
     parts.push(`<span class="extra">${statAbbr(l.stem)}</span>`);
   }
-  if (!perfect) parts.push(`<span class="want">then Mystic: ${missing.map((m) => statAbbr(m)).join(" or ")}</span>`);
+  if (!perfect) parts.push(`<span class="want">${window.t('mysticFinish')} ${missing.map((m) => statAbbr(m)).join(" or ")}</span>`);
   const lines = tooltipRows(h.lines).map((r) => {
     const w = wantStems.has(r.stem);
     return `<span class="${w ? "want" : ""}">${r.label}</span><span class="v ${w ? "want" : ""}">${r.value}</span>`;
   }).join("");
   const mats = matsHtml(materials(h));
-  const craftedNote = tier === "crafted" ? `<div class="small">Improve Legendary primals: only one can be worn per character.</div>` : "";
+  const craftedNote = tier === "crafted" ? `<div class="small">${window.t('improveLegendaryPrimalNote')}</div>` : "";
   const crucibleNote = tier === "crafted" && supportsSanctify(season)
-    ? `<div class="small">Or use an Angelic Crucible for the last step to create a Sanctified item. Its seasonal power replaces an ordinary secondary affix on six-affix items. The listed cost and materials assume Improve Legendary with ashes.</div>` : "";
-  return `<article class="hit"><div class="head"><span class="tag ${tagCls}">${tagText}</span><span class="aff">${parts.join(", ")}</span></div>
+    ? `<div class="small">${window.t('crucibleNote')}</div>` : "";
+  return `<article class="hit"><div class="head"><span class="tag ${tagCls}">${tagText()}</span><span class="aff">${parts.join(", ")}</span></div>
     ${stepsHtml(h, missing, wantStems, { cls, name: heroName })}${craftedNote}${crucibleNote}<div class="mats">${mats}</div>
-    <details class="full"><summary>Full tooltip</summary><div class="lines">${lines}</div></details></article>`;
+    <details class="full"><summary>${window.t('fullTooltip')}</summary><div class="lines">${lines}</div></details></article>`;
 }
 
 // The cost and limit boxes shared by custom search and the build search, as the request fields the search reads.

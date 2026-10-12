@@ -211,148 +211,150 @@
 </head>
 <body>
 <dialog id="rules" aria-labelledby="rulesTitle">
-  <h2 id="rulesTitle">Before you start</h2>
-  <p class="small">Every recipe here assumes these. Skipping one is the usual reason a result doesn&rsquo;t match.</p>
+  <h2 id="rulesTitle" data-i18n="beforeStart">Before you start</h2>
+  <p class="small" data-i18n="beforeStartDesc">Every recipe here assumes these. Skipping one is the usual reason a result doesn&rsquo;t match.</p>
   <ul>
-    <li><b>Unlock primals first</b>: clear a <b>solo Greater Rift 70</b> on another hero of the same season and mode.</li>
-    <li>Use a <b>fresh level 1 seasonal hero</b>.</li>
-    <li>Don&rsquo;t gain <b>any XP</b>, including in town by reading Haedrig&rsquo;s book.</li>
-    <li>Don&rsquo;t do <b>any earlier transmutes</b> on the slot.</li>
-    <li>Follow the steps <b>in order</b>.</li>
-    <li>Check each intermediate item against the stats shown, and <b>stop if one doesn&rsquo;t match</b>.</li>
+    <li data-i18n="bs1"><b>Unlock primals first</b>: clear a <b>solo Greater Rift 70</b> on another hero of the same season and mode.</li>
+    <li data-i18n="bs2">Use a <b>fresh level 1 seasonal hero</b>.</li>
+    <li data-i18n="bs3">Don&rsquo;t gain <b>any XP</b>, including in town by reading Haedrig&rsquo;s book.</li>
+    <li data-i18n="bs4">Don&rsquo;t do <b>any earlier transmutes</b> on the slot.</li>
+    <li data-i18n="bs5">Follow the steps <b>in order</b>.</li>
+    <li data-i18n="bs6">Check each intermediate item against the stats shown, and <b>stop if one doesn&rsquo;t match</b>.</li>
   </ul>
-  <button type="button" class="go" id="rulesOk">I understand</button>
+  <button type="button" class="go" id="rulesOk" data-i18n="understand">I understand</button>
 </dialog>
 <div class="page">
 <div class="shell">
 <header class="top">
   <div class="banner-wrap"><h1><a href="./" id="home" title="Back to the start"><img class="banner" src="banner.webp" alt="d3recipes"></a></h1></div>
-  <p class="tagline">Targeted Crafting Recipes for Diablo 3 on Consoles</p>
+  <p class="tagline" data-i18n="tagline">Targeted Crafting Recipes for Diablo 3 on Consoles</p>
   <div class="orn" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="icons/flourish-still.webp"><img src="icons/flourish.webp" alt="" width="107" height="64"></picture></div>
-  <p class="small">Recipes only work on brand new level 1 seasonal characters &mdash; go directly to Adventure Mode and do not gain any XP before crafting.</p>
+  <p class="small" data-i18n="headerNote">Recipes only work on brand new level 1 seasonal characters &mdash; go directly to Adventure Mode and do not gain any XP before crafting.</p>
 
   <div class="bar">
-    <div class="ctx">Results for <b id="ctxText">Season 40 &middot; Softcore</b> <button type="button" class="link" id="ctxBtn" aria-expanded="false" aria-controls="ctxEdit">change</button></div>
-    <button type="button" class="icon" id="theme" title="Switch light / dark" aria-label="Switch light or dark theme">&#9790;</button>
+    <div class="ctx">Results for <b id="ctxText">Season 40 &middot; Softcore</b> <button type="button" class="link" id="ctxBtn" aria-expanded="false" aria-controls="ctxEdit" data-i18n="ctxChange">change</button></div>
+    <button type="button" class="link" id="langToggle">中文</button>
+    <button type="button" class="icon" id="theme" data-i18n-title="switchThemeTitle" title="Switch light / dark" aria-label="Switch light or dark theme">&#9790;</button>
   </div>
   <section class="card" id="ctxEdit" hidden>
     <div class="row">
-      <div><label for="season">Season</label><input id="season" type="number" min="1" value="40"></div>
-      <div><label for="hc">Mode</label><select id="hc"><option value="0" selected>Softcore</option><option value="1">Hardcore</option></select></div>
+      <div><label for="season" data-i18n="season">Season</label><input id="season" type="number" min="1" value="40"></div>
+      <div><label for="hc" data-i18n="mode">Mode</label><select id="hc"><option value="0" selected data-i18n="softcore">Softcore</option><option value="1" data-i18n="hardcore">Hardcore</option></select></div>
     </div>
   </section>
 
-  <p id="sanctifyAvailable" class="small" role="status" hidden>Sanctification is available in this season.</p>
+  <p id="sanctifyAvailable" class="small" role="status" hidden data-i18n="sanctifyAvailable">Sanctification is available in this season.</p>
 </header>
   <nav id="nav" aria-label="Prepared builds and custom search"></nav>
   <main id="content">
     <section id="viewBuild" hidden></section>
     <section id="viewSaved" hidden></section>
     <section id="viewSearch">
-  <div id="loading" class="card">Loading the item tables&hellip;</div>
+  <div id="loading" class="card" data-i18n="loadingTables">Loading the item tables&hellip;</div>
 
   <div id="app" hidden>
     <section class="card">
-      <h2>1. Class and item</h2>
-      <label for="cls">Class</label>
+      <h2 data-i18n="step1Title">1. Class and item</h2>
+      <label for="cls" data-i18n="cls">Class</label>
       <select id="cls"></select>
-      <label for="itemFind">Item you want</label>
+      <label for="itemFind" data-i18n="itemYouWant">Item you want</label>
       <div id="itemChips" class="chips"></div>
-      <input id="itemFind" type="text" placeholder="Search items: crown, boots, quiver&hellip;" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="itemPick">
+      <input id="itemFind" type="text" data-i18n-placeholder="searchItemsPh" placeholder="Search items: crown, boots, quiver&hellip;" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="itemPick">
       <div id="itemPick" class="pick" role="listbox" hidden></div>
     </section>
 
     <section class="card">
-      <div class="h2row"><h2>2. Stats you want</h2><label class="po" title="Only show recipes that end on a natural primal. Crafted primals (Improve Legendary), ancients and plain legendaries are skipped, so the search spends its whole time limit on natural primals."><input id="po" type="checkbox"> Primal only</label></div>
+      <div class="h2row"><h2 data-i18n="step2Title">2. Stats you want</h2><label class="po" data-i18n-title="primalOnlyTitle" title="Only show recipes that end on a natural primal. Crafted primals (Improve Legendary), ancients and plain legendaries are skipped, so the search spends its whole time limit on natural primals."><input id="po" type="checkbox"> <span data-i18n="primalOnly">Primal only</span></label></div>
       <div id="chips" class="chips"></div>
-      <input id="find" type="text" placeholder="Search stats: crit, cooldown, dexterity, multishot&hellip;" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="pick">
+      <input id="find" type="text" data-i18n-placeholder="searchStatsPh" placeholder="Search stats: crit, cooldown, dexterity, multishot&hellip;" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="pick">
       <div id="pick" class="pick" role="listbox" hidden></div>
-      <p class="small" style="margin:8px 0 0">Pick as many as you like. Recipes that land all of them are listed first; if one stat is missing, the Mystic can usually add it.</p>
+      <p class="small" style="margin:8px 0 0" data-i18n="pickNote">Pick as many as you like. Recipes that land all of them are listed first; if one stat is missing, the Mystic can usually add it.</p>
       <details style="margin-top:10px">
-        <summary>Costs and Limits</summary>
-        <p class="small" style="margin:10px 0 0">Relative cost of one step of each kind. The search finds the recipe with the lowest total by these weights, so only the ratios matter.</p>
+        <summary data-i18n="costsLimits">Costs and Limits</summary>
+        <p class="small" style="margin:10px 0 0" data-i18n="costsDesc">Relative cost of one step of each kind. The search finds the recipe with the lowest total by these weights, so only the ratios matter.</p>
         <div class="opts">
-          <div><label for="cc" title="Convert Set Item">Convert</label><input id="cc" type="number" min="0.01" step="any" value="0.75"></div>
-          <div><label for="ch">Hope of Cain</label><input id="ch" type="number" min="0.01" step="any" value="1"></div>
-          <div><label for="cr">Reforge</label><input id="cr" type="number" min="0.01" step="any" value="5"></div>
-          <div id="sanctifyCost"><label for="csa">Sanctification</label><input id="csa" type="number" min="0.01" step="any" value="5"></div>
-          <div><label for="cp" title="Improve Legendary (100 Primordial Ashes)">Ashes</label><input id="cp" type="number" min="0.01" step="any" value="25"></div>
-          <div><label for="cs" title="Relative cost of handing the item to a hero of another class (a throwaway level 1 will do), in the same units as the costs before it. Higher means fewer swaps.">Hero swap</label><input id="cs" type="number" min="0" step="any" value="1"></div>
+          <div><label for="cc" data-i18n-title="convertTitle" title="Convert Set Item" data-i18n="convert">Convert</label><input id="cc" type="number" min="0.01" step="any" value="0.75"></div>
+          <div><label for="ch" data-i18n="hopeOfCain">Hope of Cain</label><input id="ch" type="number" min="0.01" step="any" value="1"></div>
+          <div><label for="cr" data-i18n="reforge">Reforge</label><input id="cr" type="number" min="0.01" step="any" value="5"></div>
+          <div id="sanctifyCost"><label for="csa" data-i18n="sanctification">Sanctification</label><input id="csa" type="number" min="0.01" step="any" value="5"></div>
+          <div><label for="cp" data-i18n-title="ashesTitle" title="Improve Legendary (100 Primordial Ashes)" data-i18n="ashes">Ashes</label><input id="cp" type="number" min="0.01" step="any" value="25"></div>
+          <div><label for="cs" data-i18n-title="heroSwapTitle" title="Relative cost of handing the item to a hero of another class (a throwaway level 1 will do), in the same units as the costs before it. Higher means fewer swaps." data-i18n="heroSwap">Hero swap</label><input id="cs" type="number" min="0" step="any" value="1"></div>
         </div>
         <div class="opts">
-          <div><label for="floor" title="Minimum roll for a wanted stat on ancient and legendary results, as a percentage of its maximum. Primals are always maximum.">Good roll (%)</label><input id="floor" type="number" min="0" max="100" value="75"></div>
-          <div><label for="top">Recipes shown</label><input id="top" type="number" min="1" max="6" value="1"></div>
-          <div><label for="secs">Time limit (s)</label><input id="secs" type="number" min="1" max="120" value="15"></div>
+          <div><label for="floor" data-i18n-title="goodRollTitle" title="Minimum roll for a wanted stat on ancient and legendary results, as a percentage of its maximum. Primals are always maximum." data-i18n="goodRoll">Good roll (%)</label><input id="floor" type="number" min="0" max="100" value="75"></div>
+          <div><label for="top" data-i18n="recipesShown">Recipes shown</label><input id="top" type="number" min="1" max="6" value="1"></div>
+          <div><label for="secs" data-i18n="timeLimit">Time limit (s)</label><input id="secs" type="number" min="1" max="120" value="15"></div>
         </div>
-        <p class="small" style="margin:10px 0 0">How far the search may branch. Converts and hero swaps cost little, so each one more can find cheaper recipes but makes the search much slower. Leave a box empty for no limit. A hero swap hands the item to another class for a cube step: the item keeps its seed and the hero's class changes what it rolls. Any class may also create the item (each class's Hope of Cain picks and rolls differently), which counts as a hero swap; the later cube steps and the Mystic may be any class too.</p>
+        <p class="small" style="margin:10px 0 0" data-i18n="branchDesc">How far the search may branch. Converts and hero swaps cost little, so each one more can find cheaper recipes but makes the search much slower. Leave a box empty for no limit. A hero swap hands the item to another class for a cube step: the item keeps its seed and the hero's class changes what it rolls. Any class may also create the item (each class's Hope of Cain picks and rolls differently), which counts as a hero swap; the later cube steps and the Mystic may be any class too.</p>
         <div class="opts">
-          <div id="sanctifyLimit"><label for="sn" title="Most Sanctification (Angelic Crucible) steps in one recipe. 0 turns Sanctification off, whatever its cost; leave empty for no limit. The default is 2 in seasons with Angelic Crucibles and 0 in others.">Most Sanctifications</label><input id="sn" type="number" min="0" step="1" value="2" placeholder="no limit" aria-describedby="sanctifyWarning"></div>
-          <div><label for="cn" title="Most Convert Set Item steps in one recipe. Leave empty for no limit.">Most converts</label><input id="cn" type="number" min="0" step="1" value="4" placeholder="no limit"></div>
-          <div><label for="xn" title="Most hand-overs to another class during the cube steps of one recipe. Leave empty for no limit. A hand-over just for the Mystic does not count.">Most hero swaps</label><input id="xn" type="number" min="0" step="1" value="4" placeholder="no limit"></div>
+          <div id="sanctifyLimit"><label for="sn" data-i18n-title="mostSanctTitle" title="Most Sanctification (Angelic Crucible) steps in one recipe. 0 turns Sanctification off, whatever its cost; leave empty for no limit. The default is 2 in seasons with Angelic Crucibles and 0 in others." data-i18n="mostSanct">Most Sanctifications</label><input id="sn" type="number" min="0" step="1" value="2" data-i18n-placeholder="noLimit" placeholder="no limit" aria-describedby="sanctifyWarning"></div>
+          <div><label for="cn" data-i18n-title="mostConvertsTitle" title="Most Convert Set Item steps in one recipe. Leave empty for no limit." data-i18n="mostConverts">Most converts</label><input id="cn" type="number" min="0" step="1" value="4" data-i18n-placeholder="noLimit" placeholder="no limit"></div>
+          <div><label for="xn" data-i18n-title="mostSwapsTitle" title="Most hand-overs to another class during the cube steps of one recipe. Leave empty for no limit. A hand-over just for the Mystic does not count." data-i18n="mostSwaps">Most hero swaps</label><input id="xn" type="number" min="0" step="1" value="4" data-i18n-placeholder="noLimit" placeholder="no limit"></div>
         </div>
-        <p id="sanctifyWarning" class="warn" role="status" hidden>Sanctification is enabled for an unsupported season. These results are not supported; use them only for emulator testing.</p>
+        <p id="sanctifyWarning" class="warn" role="status" hidden data-i18n="sanctWarn">Sanctification is enabled for an unsupported season. These results are not supported; use them only for emulator testing.</p>
       </details>
     </section>
 
-    <button id="go" class="go">Find Recipes</button>
+    <button id="go" class="go" data-i18n="findRecipes">Find Recipes</button>
     <div id="status"></div>
-    <div id="actions" class="actions" hidden><button type="button" class="btn" id="copyLink">Copy link</button><button type="button" class="btn" id="saveBtn">Save</button><span id="actionNote" class="small"></span></div>
+    <div id="actions" class="actions" hidden><button type="button" class="btn" id="copyLink" data-i18n="copyLink">Copy link</button><button type="button" class="btn" id="saveBtn" data-i18n="save">Save</button><span id="actionNote" class="small"></span></div>
     <div id="out"></div>
   </div>
 
     </section>
     <section id="viewCreateBuild" hidden>
-      <h1>Edit builds</h1>
-      <div id="build-loading" class="card">Loading item tables�</div>
+      <h1 data-i18n="editBuilds">Edit builds</h1>
+      <div id="build-loading" class="card" data-i18n="loadingTables">Loading item tables&hellip;</div>
       <div id="build-editor" hidden>
         <section class="card">
-          <label for="build-saved">Saved builds</label><select id="build-saved"></select>
-          <button id="build-new" type="button" class="btn">New build</button>
-          <button id="build-clone" type="button" class="btn" hidden>Clone build</button>
-          <button id="build-import" type="button" class="btn">Import builds</button>
-          <button id="build-exportAll" type="button" class="btn">Export all saved builds</button>
+          <label for="build-saved" data-i18n="savedBuilds">Saved builds</label><select id="build-saved"></select>
+          <button id="build-new" type="button" class="btn" data-i18n="newBuild">New build</button>
+          <button id="build-clone" type="button" class="btn" hidden data-i18n="cloneBuild">Clone build</button>
+          <button id="build-import" type="button" class="btn" data-i18n="importBuilds">Import builds</button>
+          <button id="build-exportAll" type="button" class="btn" data-i18n="exportAllBuilds">Export all saved builds</button>
           <input id="build-importFile" type="file" accept=".toml,text/plain" hidden>
           <p id="build-importStatus" role="status" aria-live="polite"></p>
-          <button id="build-delete" type="button" class="btn">Delete saved build</button>
-          <label for="build-name">Build name</label><input id="build-name" type="text" maxlength="120" placeholder="My build">
-          <label for="build-class">Character class</label><select id="build-class"></select>
-          <p class="small">Choose items and required affixes for each slot. Empty slots are skipped. Saved definitions can be used for a future search of the whole build. The TOML generator uses the first two stat priorities together and treats the third as a Mystic finish; arrange them in the order you want.</p>
+          <button id="build-delete" type="button" class="btn" data-i18n="deleteSavedBuild">Delete saved build</button>
+          <label for="build-name" data-i18n="buildName">Build name</label><input id="build-name" type="text" maxlength="120" data-i18n-placeholder="buildNamePh" placeholder="My build">
+          <label for="build-class" data-i18n="characterClass">Character class</label><select id="build-class"></select>
+          <p class="small" data-i18n="buildDesc">Choose items and required affixes for each slot. Empty slots are skipped. Saved definitions can be used for a future search of the whole build. The TOML generator uses the first two stat priorities together and treats the third as a Mystic finish; arrange them in the order you want.</p>
         </section>
         <div id="build-slots"></div>
-        <button id="build-save" class="go" type="button">Save build</button>
-        <button id="build-export" class="btn" type="button">Export TOML</button>
-        <div id="build-exportPreview" hidden><label for="build-toml">Build definition (ready to append to builds.toml)</label><textarea id="build-toml" readonly rows="12" style="width:100%"></textarea></div><p class="small">Saved locally in this browser. Export a copy for backup; clearing browser data removes local builds.</p>
+        <button id="build-save" class="go" type="button" data-i18n="saveBuild">Save build</button>
+        <button id="build-export" class="btn" type="button" data-i18n="exportToml">Export TOML</button>
+        <div id="build-exportPreview" hidden><label for="build-toml" data-i18n="buildDefLabel">Build definition (ready to append to builds.toml)</label><textarea id="build-toml" readonly rows="12" style="width:100%"></textarea></div><p class="small" data-i18n="localSaveNote">Saved locally in this browser. Export a copy for backup; clearing browser data removes local builds.</p>
       </div>
       <p id="build-status" role="status" aria-live="polite"></p>
     </section>
     <section id="viewSearchBuilds" hidden>
-      <h1>Search build items</h1>
+      <h1 data-i18n="searchBuildItems">Search build items</h1>
       <section class="card">
-        <label for="search-builds-saved">Saved build</label>
-        <select id="search-builds-saved"><option value="">Choose a saved build</option></select>
-        <button id="search-builds-create" class="btn" type="button">Create new build</button>
+        <label for="search-builds-saved" data-i18n="savedBuilds">Saved build</label>
+        <select id="search-builds-saved"><option value="" data-i18n="chooseSavedBuild">Choose a saved build</option></select>
+        <button id="search-builds-create" class="btn" type="button" data-i18n="createNewBuild">Create new build</button>
       <div id="search-builds-costs-slot"></div>
         <p id="search-builds-status" class="small" role="status" aria-live="polite"></p>
       </section>
-      <button id="search-builds-run" class="go" type="button" disabled>Find build items</button>
-      <button id="search-builds-cancel" class="btn" type="button" hidden>Cancel</button>
+      <button id="search-builds-run" class="go" type="button" disabled data-i18n="findBuildItems">Find build items</button>
+      <button id="search-builds-cancel" class="btn" type="button" hidden data-i18n="cancel">Cancel</button>
       <div id="search-builds-rows"></div>
     </section>
   </main>
   <footer>
     <div class="orn" aria-hidden="true"><picture><source media="(prefers-reduced-motion: reduce)" srcset="icons/footer-still.webp"><img src="icons/flourish-footer.webp" alt="" height="56"></picture></div>
-    <p><button type="button" class="link" id="rulesBtn">Before you start</button></p>
-    <p>Thanks to Blizzard Entertainment for thirty years of Diablo, to jester (d3hack) for making offline seasons possible, and to Maxroll for the build guides. <a href="https://github.com/FNGarvin/d3recipes/blob/main/LICENSE">License</a>.</p>
-    <p>Questions or suggestions? <a href="https://github.com/FNGarvin/d3recipes">Let us know on GitHub</a>.</p>
-    <p>d3recipes is a fan-made tool, not affiliated with or endorsed by Blizzard Entertainment. Diablo&reg; III is a trademark or registered trademark of Blizzard Entertainment, Inc. Crafting-material icons depict items from the game and are &copy; Blizzard Entertainment, Inc.; they are shown for identification only.</p>
+    <p><button type="button" class="link" id="rulesBtn" data-i18n="beforeStart">Before you start</button></p>
+    <p data-i18n="footerThanks">Thanks to Blizzard Entertainment for thirty years of Diablo, to jester (d3hack) for making offline seasons possible, and to Maxroll for the build guides. <a href="https://github.com/FNGarvin/d3recipes/blob/main/LICENSE">License</a>.</p>
+    <p><span data-i18n="footerQuestions">Questions or suggestions?</span> <a href="https://github.com/FNGarvin/d3recipes">Let us know on GitHub</a>.</p>
+    <p data-i18n="footerFanMade">d3recipes is a fan-made tool, not affiliated with or endorsed by Blizzard Entertainment. Diablo&reg; III is a trademark or registered trademark of Blizzard Entertainment, Inc. Crafting-material icons depict items from the game and are &copy; Blizzard Entertainment, Inc.; they are shown for identification only.</p>
   </footer>
 </div>
 
 </div>
 <script defer src="analytics.js"></script>
-<script type="module" src="builds.js?v=f88bec689a"></script>
-<script type="module" src="app.js?v=f88bec689a"></script>
-<script type="module" src="create-build.js?v=f88bec689a"></script>
-<script type="module" src="search-builds.js?v=f88bec689a"></script>
+<script type="module" src="builds.js?v=c3f9a6b7d8"></script>
+<script type="module" src="app.js?v=c3f9a6b7d8"></script>
+<script type="module" src="create-build.js?v=c3f9a6b7d8"></script>
+<script type="module" src="search-builds.js?v=c3f9a6b7d8"></script>
+<script src="i18n.js?v=c3f9a6b7d8"></script>
 </body>
 </html>

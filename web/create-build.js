@@ -1,10 +1,11 @@
-import { KEY, readBuilds as saved, updateBuilds, importPlan, conflictSnapshot, applyImport } from './build-storage.js?v=f88bec689a';
-import { combo, esc } from './ui.js?v=f88bec689a';
-import { parseBuildToml } from './build-toml.js?v=f88bec689a';
+import { KEY, readBuilds as saved, updateBuilds, importPlan, conflictSnapshot, applyImport } from './build-storage.js?v=c3f9a6b7d8';
+import { combo, esc } from './ui.js?v=c3f9a6b7d8';
+import { parseBuildToml } from './build-toml.js?v=c3f9a6b7d8';
 // randomUUID exists only on HTTPS and localhost pages; a self-hosted plain-HTTP page needs the fallback
 const uid=()=>globalThis.crypto?.randomUUID?.()??'b-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
-import { CLASS_NAMES, STATS, statName, HIDDEN, SLOT_NAMES } from './stats.js?v=f88bec689a';
+import { CLASS_NAMES, STATS, statName, HIDDEN, SLOT_NAMES, itemName } from './stats.js?v=c3f9a6b7d8';
 const $=id=>document.getElementById('build-'+id);
+const _t=(key,params)=>typeof window!=='undefined'&&typeof window.t==='function'?window.t(key,params):key;
 const slots=['Head','Shoulders','Chest','Hands','Wrists','Waist','Legs','Feet','Amulet','Ring 1','Ring 2','Main-hand','Off-hand','Dual-Wield'];
 const pools={Head:['Helm','SpiritStone_Monk','VoodooMask','WizardHat'],Shoulders:['Shoulders'],Chest:['Chest','Cloak'],Hands:['Gloves'],Wrists:['Bracers'],Waist:['Belt','MightyBelt'],Legs:['Legs'],Feet:['Boots'],Amulet:['Amulet'],'Ring 1':['Ring'],'Ring 2':['Ring']};
 let workerFailure=null;
@@ -22,8 +23,8 @@ function toml(build=draft){const b=definition(build),q=JSON.stringify;return '[[
 let itemCombos=[];
 function itemChip(i){
   const row=draft.slots.find(r=>r.slot===slots[i]),chip=$('chip-'+i),input=$('item-'+i);
-  const name=row?(info.items.find(it=>it.id===row.item)?.name||row.externalName||'Any item'):'';
-  chip.innerHTML=row?`<div class="chip"><span>${esc(name)}</span><button type="button" title="Choose a different item" aria-label="Choose a different item for ${esc(slots[i])}">&times;</button></div>`:'';
+  const name=row?(info.items.find(it=>it.id===row.item)?.name||row.externalName||'Any item'):'';const displayName=itemName(name);
+  chip.innerHTML=row?`<div class="chip"><span>${esc(displayName)}</span><button type="button" title="Choose a different item" aria-label="Choose a different item for ${esc(slots[i])}">&times;</button></div>`:'';
   input.hidden=!!row;if(row)$('pick-'+i).hidden=true;
   chip.querySelector('button')?.addEventListener('click',()=>{draft.slots=draft.slots.filter(r=>r.slot!==slots[i]);itemChip(i);loadAffixes(i);input.focus();});
 }
@@ -35,7 +36,7 @@ function render(){for(const i of pickers.keys())disposePicker(i);for(const c of 
   return section;
 }));
   slots.forEach((slot,i)=>{
-    const source=()=>{const q=$('item-'+i).value.trim().toLowerCase();return candidates(slot).filter(it=>!q||it.name.toLowerCase().includes(q)).slice(0,60).map(it=>({value:it,html:esc(it.name)+' <span class="hint">'+esc(SLOT_NAMES[it.slot]||it.slot)+'</span>'}));};
+    const source=()=>{const q=$('item-'+i).value.trim().toLowerCase();return candidates(slot).filter(it=>{if(!q)return true;const en=it.name.toLowerCase();const zh=itemName(it.name).toLowerCase();return en.includes(q)||zh.includes(q);}).slice(0,60).map(it=>({value:it,html:esc(itemName(it.name))+' <span class="hint">'+esc(SLOT_NAMES[it.slot]||it.slot)+'</span>'}));};
     itemCombos.push(combo($('item-'+i),$('pick-'+i),source,'No matching item',it=>{draft.slots=draft.slots.filter(r=>r.slot!==slot);draft.slots.push({slot,item:it.id,wants:[]});itemChip(i);loadAffixes(i);}));
     itemChip(i);
   });
@@ -55,7 +56,7 @@ const chips=()=>{const list=box.querySelector('.chips');list.replaceChildren(...
   const remove=document.createElement('button');remove.type='button';remove.dataset.remove=String(i);remove.title='Remove';remove.setAttribute('aria-label','Remove '+statName(want.stem));remove.textContent='×';
   chip.append(label,up,remove);return chip;
 }));list.querySelectorAll('[data-up]').forEach(b=>b.addEventListener('click',()=>{const i=+b.dataset.up;[row.wants[i-1],row.wants[i]]=[row.wants[i],row.wants[i-1]];chips();}));list.querySelectorAll('[data-remove]').forEach(b=>b.addEventListener('click',()=>{row.wants.splice(+b.dataset.remove,1);chips();}));};chips();const input=box.querySelector('input');pickers.set(request.i,combo(input,box.querySelector('.pick'),()=>{const text=input.value.trim().toLowerCase();return stems.filter(stem=>!row.wants.some(w=>w.stem===stem)&&(statName(stem).toLowerCase().includes(text)||stem.toLowerCase().includes(text))).slice(0,40).map(stem=>({value:stem,html:esc(statName(stem))}));},'No matching stats.',stem=>{row.wants.push({stem,min:null});chips();}));}
-worker.onmessage=({data:m})=>{if(m.type==='ready'){info=m.info;$('class').replaceChildren(...info.classes.map((c,i)=>new Option(CLASS_NAMES[c]||c,String(i))).sort((x,y)=>x.text.localeCompare(y.text)));$('editor').hidden=false;$('loading').hidden=true;render();listSaved();}else if(m.type==='stems'){const r=pending.get(m.key);pending.delete(m.key);if(r?.resolve){r.resolve(m.stems);return;}if(r&&r.generation===generation)affixPicker(r,Object.keys(m.stems).filter(s=>!HIDDEN.test(s)).sort((a,b)=>statName(a).localeCompare(statName(b))));}else if(m.type==='error')failRequests(m.message,m.key);};
+worker.onmessage=({data:m})=>{if(m.type==='ready'){info=m.info;$('class').replaceChildren(...info.classes.map((c,i)=>{const tl=_t(c);const nm=tl!==c?tl:(CLASS_NAMES[c]||c);return new Option(nm,String(i));}).sort((x,y)=>x.text.localeCompare(y.text)));$('editor').hidden=false;$('loading').hidden=true;render();listSaved();}else if(m.type==='stems'){const r=pending.get(m.key);pending.delete(m.key);if(r?.resolve){r.resolve(m.stems);return;}if(r&&r.generation===generation)affixPicker(r,Object.keys(m.stems).filter(s=>!HIDDEN.test(s)).sort((a,b)=>statName(a).localeCompare(statName(b))));}else if(m.type==='error')failRequests(m.message,m.key);};
 $('name').addEventListener('input',()=>draft.name=$('name').value);
 $('class').addEventListener('change',()=>{draft.class=+$('class').value;draft.slots=draft.slots.filter(r=>!r.item||candidates(r.slot).some(it=>it.id===r.item));render();notice('Class changed. Items unavailable to this class were removed.');});
 $('save').addEventListener('click',async()=>{if(!draft.name.trim())return notice('Enter a build name.');if(!draft.slots.length)return notice('Select at least one item.');if(pending.size)return notice('Wait for the affixes to finish loading before saving.');try{draft.name=draft.name.trim();draft.id ||=uid();const record=structuredClone({...draft,version:1,definition:definition(),updatedAt:new Date().toISOString()});await updateBuilds(list=>{const i=list.findIndex(b=>b.id===record.id);if(i<0)list.push(record);else list.splice(i,1,record);});listSaved();$('saved').value=draft.id;$('clone').hidden=false;notice('Build saved in this browser.');}catch(e){notice('Could not save build: '+e.message);}});
@@ -154,15 +155,17 @@ function chooseImportConflicts(conflicts){
 window.addEventListener('storage',event=>{if(event.key===KEY){const selected=$('saved').value;listSaved();$('saved').value=selected;}});
 
 function failRequests(message,key){
+  const _fb={searchEngineUnavailable:(p)=>`Search engine unavailable: ${p.e}. Reload the page to retry.`,couldNotLoadAffixes:(p)=>`Could not load affixes: ${p.e}`,couldNotLoadItemTables:(p)=>`Could not load item tables: ${p.e}`,workerCrashed:()=>`Worker crashed`,couldNotReadWorker:()=>`Could not read the worker response`};
+  const _t=(k,p)=>typeof window!=='undefined'&&typeof window.t==='function'?window.t(k,p):(_fb[k]?_fb[k](p||{}):k);
   const error=Error(message);
-  if(key===undefined)workerFailure='Search engine unavailable: '+message+'. Reload the page to retry.';
+  if(key===undefined)workerFailure=_t('searchEngineUnavailable',{e:message});
   for(const [id,request] of pending){
     if(key!==undefined&&id!==key)continue;
     pending.delete(id);
     if(request.reject)request.reject(error);
-    else if(request.generation===generation){const box=$('affixes-'+request.i);if(box)box.textContent='Could not load affixes: '+message;}
+    else if(request.generation===generation){const box=$('affixes-'+request.i);if(box)box.textContent=_t('couldNotLoadAffixes',{e:message});}
   }
-  notice('Could not load item tables: '+message);
+  notice(_t('couldNotLoadItemTables',{e:message}));
 }
-worker.addEventListener('error',event=>{event.preventDefault();failRequests(event.message||'Worker crashed');});
-worker.addEventListener('messageerror',()=>failRequests('Could not read the worker response'));
+worker.addEventListener('error',event=>{event.preventDefault();failRequests(event.message||_t('workerCrashed'));});
+worker.addEventListener('messageerror',()=>failRequests(_t('couldNotReadWorker')));

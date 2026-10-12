@@ -1,9 +1,9 @@
 // Copyright 2026 FNG. Use, modification and redistribution are permitted under the conditions in LICENSE:
 // credit the source, and visibly link to the site or repository if you use its outputs in a user-facing application.
 // Recipe rendering shared by the custom search (app.js) and the prepared builds (builds.js).
-import { statName, statAbbr, isSecondary, RANGE_STEMS, fmtValue, materials, MATERIAL_ICONS, MATERIAL_GROUPS, SLOT_NAMES } from "./stats.js?v=f88bec689a";
+import { statName, statAbbr, isSecondary, RANGE_STEMS, fmtValue, materials, MATERIAL_ICONS, MATERIAL_GROUPS, SLOT_NAMES } from "./stats.js?v=c3f9a6b7d8";
 
-const slotName = (s) => SLOT_NAMES[s] || s;
+const slotName = (s) => { const t = typeof window !== "undefined" && window.t ? window.t(s) : s; return t !== s ? t : (SLOT_NAMES[s] || s); };
 
 const PLURAL_FIX = { "Chest Armor": "chest armor pieces", Pants: "pants", Boots: "boots", Gloves: "gloves", Bracers: "bracers", Shoulders: "shoulders", Source: "sources" };
 export function slotPlural(slot, n) {
@@ -50,7 +50,7 @@ export function matsHtml(m) {
   return out.join("");
 }
 
-const OP_TEXT = { S: (n) => `Sanctify &times;${n}`, R: (n) => `Reforge &times;${n}`, P: (n) => `Improve with ashes &times;${n}`, C: (n) => `Convert &times;${n}` };
+const OP_TEXT = { S: (n) => window.t('opSanctify', { n }), R: (n) => window.t('opReforge', { n }), P: (n) => window.t('opImproveWithAshes', { n }), C: (n) => window.t('opConvert', { n }) };
 
 const MAIN = new Set(["Str", "Dex", "Int", "StrDex", "StrInt", "StrVit", "DexInt", "DexVit", "IntVit"]);
 
@@ -61,7 +61,8 @@ export function stopOn(cp, prev) {
   const main = lines.find((l) => MAIN.has(l.stem)) || lines[0];
   const val = main ? `${fmtValue(main.stem, main.value)} ${statAbbr(main.stem)}` : "";
   const prefix = !prev || cp.name !== prev.name ? cp.name : (cp.quality === "ancient" || cp.quality === "primal") ? cp.quality : "";
-  return prefix && val ? `${prefix} w/ ${val}` : (prefix || val);
+  const w = typeof window !== "undefined" && window.t ? window.t("withShort") : "w/";
+  return prefix && val ? `${prefix} ${w} ${val}` : (prefix || val);
 }
 
 // Can the Mystic add every `missing` stat? It rerolls a line the player does not need, within the same kind: a primary
@@ -87,27 +88,24 @@ export function stepsHtml(h, missing, wantStems, heroes) {
   const who = h.route_class || [];
   const crafter = h.craft_class ?? (heroes && heroes.cls);
   const switched = heroes && (crafter !== heroes.cls || who.some((c) => c !== heroes.cls));
-  const as = (c) => (switched ? ` <b>as ${heroes.name(c)}</b>` : "");
-  // Long steps say what to stop on (any count above 7): a player may pass the same item several times on the way,
-  // and the roll of its main stat tells the right one apart.
+  const as = (c) => (switched ? ` <b>${window.t('asBy', { c: heroes.name(c) })}</b>` : "");
+  const stopNote = (cp, prev) => cp ? ` <span class="note">${window.t('stopOnNote', { t: stopOn(cp, prev) })}</span>` : "";
   const hopeNote = (h.hope > 7 || h.route.some(([op]) => op === "C") || h.root_name !== h.name) && cps[0]
-    ? ` <span class="note">(stop on ${stopOn(cps[0], null)})</span>` : "";
-  out.push(`Craft &amp; upgrade ${h.hope} ${slotPlural(h.slot, h.hope)}${switched ? as(crafter) : ""}${hopeNote}`);
+    ? stopNote(cps[0], null) : "";
+  out.push(`${window.t('craftAndUpgrade', { n: h.hope, item: slotPlural(h.slot, h.hope) })}${switched ? as(crafter) : ""}${hopeNote}`);
   h.route.forEach(([op, n], k) => {
     const last = k === h.route.length - 1;
     const cp = cps[k + 1];
-    const note = n > 7 && !last && cp ? ` <span class="note">(stop on ${stopOn(cp, cps[k])})</span>` : "";
+    const note = n > 7 && !last ? stopNote(cp, cps[k]) : "";
     out.push((OP_TEXT[op] || (() => op))(n) + (switched ? as(who[k]) : "") + note);
   });
   if (missing.length) {
-    // a search result names the lines the Mystic may swap and, when another class must enchant, the hero
     const legal = (h.mystic || []).filter((s) => !wantStems.has(s) && !RANGE_STEMS.has(s));
-    // compared with the hero holding the item after the last cube step (the creator when nothing was handed over)
     const holder = who.length ? who[who.length - 1] : crafter;
-    const by = heroes && h.mystic_class !== undefined && (h.mystic_class !== holder || switched) ? ` <b>as ${heroes.name(h.mystic_class)}</b>` : "";
+    const by = heroes && h.mystic_class !== undefined && (h.mystic_class !== holder || switched) ? ` <b>${window.t('asBy', { c: heroes.name(h.mystic_class) })}</b>` : "";
     out.push(legal.length && missing.length === 1
-      ? `Mystic${by}: ${legal.map((s) => statName(s)).join(" or ")} &rarr; ${statName(missing[0])}`
-      : `Mystic: roll ${missing.map((m) => statName(m)).join(" or ")}`);
+      ? `${window.t('mysticArrow', { legal: legal.map((s) => statName(s)).join(" or "), target: statName(missing[0]) })}${by}`
+      : `${window.t('mysticRoll', { s: missing.map((m) => statName(m)).join(" or ") })}${by}`);
   }
   return `<ul class="steps">${out.map((s) => `<li>${s}</li>`).join("")}</ul>`;
 }

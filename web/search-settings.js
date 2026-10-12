@@ -1,6 +1,6 @@
-import {isPct} from "./stats.js?v=f88bec689a";
-import { nodeCap } from "./ui.js?v=f88bec689a";
-import {DEFAULT_CONVERTS,mysticCanFinish,defaultSanctifyCap,DEFAULT_SANCTIFY_PRICE} from "./recipe.js?v=f88bec689a";
+import {isPct} from "./stats.js?v=c3f9a6b7d8";
+import { nodeCap } from "./ui.js?v=c3f9a6b7d8";
+import {DEFAULT_CONVERTS,mysticCanFinish,defaultSanctifyCap,DEFAULT_SANCTIFY_PRICE} from "./recipe.js?v=c3f9a6b7d8";
 export function baseQuery(req, item, season, hc) {
   // The planner works in whole numbers; hundredths keep ratios like 0.75 exact.
   const cost = (v) => Math.max(1, Math.round((+v || 0) * 100));

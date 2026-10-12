@@ -1,7 +1,7 @@
-import {baseQuery,pickHits} from './search-settings.js?v=f88bec689a';
-import {readSettings,clonePanel,hitHtml,esc,searchStarted,searchEnded} from './ui.js?v=f88bec689a';
-import {statName,CLASS_NAMES} from './stats.js?v=f88bec689a';
-import {supportsSanctify,defaultSanctifyCap} from './recipe.js?v=f88bec689a';
+import {baseQuery,pickHits} from './search-settings.js?v=c3f9a6b7d8';
+import {readSettings,clonePanel,hitHtml,esc,searchStarted,searchEnded} from './ui.js?v=c3f9a6b7d8';
+import {statName,CLASS_NAMES,itemName} from './stats.js?v=c3f9a6b7d8';
+import {supportsSanctify,defaultSanctifyCap} from './recipe.js?v=c3f9a6b7d8';
 const $=id=>document.getElementById('search-builds-'+id);
 let info,build,rows=[],active=null,job=0;
 const V=new URL(import.meta.url).searchParams.get('v');
@@ -58,9 +58,9 @@ function cancel(){searchEnded();worker.postMessage({type:'cancel'});job++;active
 const heroName=c=>CLASS_NAMES[info.classes[c]]||info.classes[c];
 // One card per slot, like the prepared lists: the item and the stats wanted, then the recipe cards custom search shows.
 function rowHtml(row){
- const items=row.any_item?'Any item':[row.externalName||info?.items.find(it=>it.id===row.item)?.name||'Unknown item',...(row.alternatives||[])].join(' or ');
+ const items=row.any_item?'Any item':[(row.externalName||info?.items.find(it=>it.id===row.item)?.name||'Unknown item'),...(row.alternatives||[])].map(itemName).join(' or ');
  const stats=targetStats(row).map((w,i)=>esc(w.label||statName(w.stem))).join(', ');
- const name=row.externalName||info?.items.find(it=>it.id===row.item)?.name||row.slot;
+ const name=itemName(row.externalName||info?.items.find(it=>it.id===row.item)?.name||row.slot);
  return `<section class="card slot"><h3>${esc(row.slot)}</h3>
   <div class="bhead"><span class="nm">${esc(items)}</span><span class="small">${stats}</span></div>
   <label class="small"><input type="checkbox" data-row="${row.index}" style="width:auto" aria-label="${esc('Already have '+name)}"> Already have it</label>
@@ -118,7 +118,7 @@ function showMatches(row){
  const cell=document.getElementById('build-match-'+row.index);
  if(chosen.length){
    const named=row.alternatives?.length;
-   cell.innerHTML=chosen.map(({tier,hit})=>(named?`<div class="nm">${esc(hit.name)}</div>`:'')+hitHtml(hit,tier,snap,row.itemData,build.class,active.season,heroName)).join('')+(row.limited?'<div class="small">'+limitNote(row)+'</div>':'');
+   cell.innerHTML=chosen.map(({tier,hit})=>(named?`<div class="nm">${esc(itemName(hit.name))}</div>`:'')+hitHtml(hit,tier,snap,row.itemData,build.class,active.season,heroName)).join('')+(row.limited?'<div class="small">'+limitNote(row)+'</div>':'');
  }else cell.textContent='No matching recipe found.'+(row.limited?' '+limitNote(row):'');
 }
 worker.onmessage=({data:m})=>{
