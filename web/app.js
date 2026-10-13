@@ -43,6 +43,28 @@ function initRules() {
 }
 initRules();
 
+// "Local offline package" notice: only for local/self-hosted runs (not the official site), so online users aren't bothered.
+// Shows once until acknowledged; version the key to re-prompt if needed. The link points to the official web version.
+const LOCAL_TIP_KEY = "local-tip-v1";
+const LOCAL_TIP_URL = "https://fngarvin.github.io/d3recipes/";
+// TRUE = a local / self-hosted run (show the notice). GitHub Pages hosts (the official site or any fork's Pages)
+// don't count as local; any other host name does, including localhost and the offline package's server.
+function isLocalRun() {
+  try {
+    const h = location.hostname;
+    return h !== "d3recipes.github.io" && !h.endsWith(".github.io");
+  } catch (e) { return true; }
+}
+function initLocalTip() {
+  const dlg = $("local-tip");
+  if (!dlg) return;
+  $("localTipLink").href = LOCAL_TIP_URL;
+  $("localTipOk").addEventListener("click", () => { store.set(LOCAL_TIP_KEY, "1"); dlg.close("ok"); });
+  if (!isLocalRun() || store.get(LOCAL_TIP_KEY) || typeof dlg.showModal !== "function") return;
+  dlg.showModal();
+}
+initLocalTip();
+
 worker.onmessage = (e) => {
   const m = e.data;
   if (m.type === "ready") { info = m.info; start(); }

@@ -201,7 +201,11 @@
   .rec .cheap { margin-top: 10px; padding-left: 10px; border-left: 2px solid var(--line); }
   .modeflag { margin: 0 0 12px; }
   dialog#rules { max-width: 440px; width: calc(100% - 32px); padding: 20px; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
-  dialog#rules::backdrop, dialog.build-conflicts::backdrop { background: rgba(0, 0, 0, .6); }
+  dialog#local-tip { max-width: 440px; width: calc(100% - 32px); padding: 20px; text-align: center; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
+  dialog#local-tip h2 { margin: 0 0 10px; font-size: 1.15rem; }
+  dialog#local-tip p { text-align: left; }
+  dialog#local-tip .go { margin-top: 8px; }
+  dialog#rules::backdrop, dialog#local-tip::backdrop, dialog.build-conflicts::backdrop { background: rgba(0, 0, 0, .6); }
   dialog.build-conflicts { max-width: 600px; width: calc(100% - 32px); max-height: 80vh; overflow: auto; padding: 20px; color: var(--text); background: var(--card); border: 1px solid var(--line); border-radius: 12px; }
   dialog.build-conflicts .btn { margin: 4px; }
   dialog#rules h2 { margin: 0 0 8px; font-size: 1.15rem; text-align: center; }
@@ -222,6 +226,12 @@
     <li data-i18n="bs6">Check each intermediate item against the stats shown, and <b>stop if one doesn&rsquo;t match</b>.</li>
   </ul>
   <button type="button" class="go" id="rulesOk" data-i18n="understand">I understand</button>
+</dialog>
+<dialog id="local-tip" aria-labelledby="localTipTitle">
+  <h2 id="localTipTitle" data-i18n="localTitle">Local offline package</h2>
+  <p class="small" data-i18n="localBody">This program is intended for players who have trouble accessing GitHub. It may not carry the newest data, so for the latest data and guaranteed recipe accuracy, please use the official web version.</p>
+  <p><a id="localTipLink" rel="noopener" target="_blank" data-i18n="localLink">Visit the original GitHub web version</a></p>
+  <button type="button" class="go" id="localTipOk" data-i18n="understand">I understand</button>
 </dialog>
 <div class="page">
 <div class="shell">

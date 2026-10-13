@@ -14,7 +14,15 @@ set -euo pipefail
 
 # 项目根目录：脚本所在位置
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-WEB_DIR="$ROOT/web"
+
+# 自适应两种布局：
+#   开发布局：脚本位于项目根目录，旁边有 web/ 子目录
+#   发布布局：脚本与 index.html 等运行时文件同层（打包时已展平）
+if [[ -d "$ROOT/web" && -f "$ROOT/web/index.html" ]]; then
+  SERVE_DIR="$ROOT/web"
+else
+  SERVE_DIR="$ROOT"
+fi
 
 PORT=8080
 OPEN_BROWSER=1
@@ -41,9 +49,9 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-# --- 检查 web/ 是否就绪 ---
-if [[ ! -f "$WEB_DIR/index.html" ]]; then
-  echo "错误: 找不到 $WEB_DIR/index.html，请确认 run-local.sh 位于项目根目录。" >&2
+# --- 检查 index.html 是否就绪 ---
+if [[ ! -f "$SERVE_DIR/index.html" ]]; then
+  echo "错误: 找不到 $SERVE_DIR/index.html，请确认 run-local.sh 位置正确。" >&2
   exit 1
 fi
 
@@ -82,6 +90,6 @@ if [[ "$OPEN_BROWSER" -eq 1 ]]; then
   ) &
 fi
 
-# --- 用 python3 内置 http.server 提供 web/ 目录 ---
-cd "$WEB_DIR"
+# --- 用 python3 内置 http.server 提供静态文件 ---
+cd "$SERVE_DIR"
 exec "$PY" -m http.server "$PORT" --bind 127.0.0.1

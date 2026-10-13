@@ -1,5 +1,6 @@
 core/target/
 *.swp
 .DS_Store
+dist/
 
 TODO.md
