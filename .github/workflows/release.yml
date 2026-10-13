@@ -1,0 +1,37 @@
+# Builds the offline release package (web/ runtime + run scripts) and uploads it
+# to the GitHub Release for the tag that triggered it.
+# The package is a platform-agnostic static site: a single zip ships both macOS
+# and Windows launch scripts, so one artifact serves both. Trigger by pushing a
+# 'v*' tag (e.g. v1.0.0) or manually via the Actions tab.
+name: Build release package
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Inspect python availability (used by the run scripts)
+        run: python3 --version
+
+      - name: Build the offline release package
+        run: |
+          chmod +x package-release.sh
+          # Tag name like v1.0.0 -> version string 1.0.0
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          ./package-release.sh "$VERSION"
+
+      - name: Upload release asset
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/d3recipes-*.zip
+          generate_release_notes: true
